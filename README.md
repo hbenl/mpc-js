@@ -79,20 +79,20 @@ mpc.currentPlaylist.add('ambient/Loscil/2010 - Endless Falls');
 Search the playlist for songs whose title contains 'dub' and delete them
 ```
 mpc.currentPlaylist.playlistSearch('Title', 'dub').then(
-	items => items.forEach(item => mpc.currentPlaylist.deleteId(item.id)));
+  items => items.forEach(item => mpc.currentPlaylist.deleteId(item.id)));
 ```
 
 ### Observing state changes
 
 ```
 mpc.on('changed-player', () => { 
-	mpc.status.status().then(status => { 
-		if (status.state == 'play') { 
-			mpc.status.currentSong().then(song => console.log(`Playing '${song.title}'`));
-		} else {
-			console.log('Stopped playback');
-		}
-	});
+  mpc.status.status().then(status => { 
+    if (status.state == 'play') { 
+      mpc.status.currentSong().then(song => console.log(`Playing '${song.title}'`));
+    } else {
+      console.log('Stopped playback');
+    }
+  });
 });
 
 mpc.playback.play();
