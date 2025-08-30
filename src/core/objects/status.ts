@@ -1,4 +1,4 @@
-import { getOptionalNumber, getOptionalBoolean, parseOptionalNumber } from '../util';
+import { getOptionalNumber, getOptionalBoolean, parseOptionalNumber } from '../util.js';
 
 /**
  * The current status of the player

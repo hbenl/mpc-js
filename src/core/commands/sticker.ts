@@ -1,4 +1,4 @@
-import { MPDProtocol } from '../protocol';
+import { MPDProtocol } from '../protocol.js';
 
 export class StickerCommands {
 
@@ -10,7 +10,7 @@ export class StickerCommands {
 	async getSticker(type: string, uri: string, name: string): Promise<string> {
 		const cmd = `sticker get ${type} "${uri}" "${name}"`;
 		const lines = await this.protocol.sendCommand(cmd);
-		return lines[0].substring(name.length + 10);
+		return lines[0]!.substring(name.length + 10);
 	}
 
 	/**

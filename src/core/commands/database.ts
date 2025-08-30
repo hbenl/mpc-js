@@ -1,5 +1,5 @@
-import { MPDProtocol } from '../protocol';
-import { DirectoryEntry, File, Song, Playlist, Directory, SongCount, GroupedSongCount } from '../objects/database';
+import { MPDProtocol } from '../protocol.js';
+import { DirectoryEntry, File, Song, Playlist, Directory, SongCount, GroupedSongCount } from '../objects/database.js';
 
 export class DatabaseCommands {
 
@@ -18,7 +18,7 @@ export class DatabaseCommands {
 		let cmd = 'count';
 		cmd = addFilter(cmd, filter);
 		const lines = await this.protocol.sendCommand(cmd);
-		return this.protocol.parse(lines, [], valueMap => new SongCount(valueMap))[0];
+		return this.protocol.parse(lines, [], valueMap => new SongCount(valueMap))[0]!;
 	}
 
 	/**
@@ -217,7 +217,7 @@ export class DatabaseCommands {
 	async readComments(uri: string): Promise<Map<string, string>> {
 		const cmd = `readcomments "${uri}"`;
 		const lines = await this.protocol.sendCommand(cmd);
-		return this.protocol.parse(lines, [], valueMap => valueMap)[0];
+		return this.protocol.parse(lines, [], valueMap => valueMap)[0]!;
 	}
 
 	/**
@@ -232,7 +232,7 @@ export class DatabaseCommands {
 			cmd += ` "${uri}"`;
 		}
 		const lines = await this.protocol.sendCommand(cmd);
-		return Number(lines[0].substring(13));
+		return Number(lines[0]!.substring(13));
 	}
 
 	/**
@@ -244,7 +244,7 @@ export class DatabaseCommands {
 			cmd += ` "${uri}"`;
 		}
 		const lines = await this.protocol.sendCommand(cmd);
-		return Number(lines[0].substring(13));
+		return Number(lines[0]!.substring(13));
 	}
 }
 

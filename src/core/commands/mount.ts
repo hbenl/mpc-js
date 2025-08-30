@@ -1,5 +1,5 @@
-import { MPDProtocol } from '../protocol';
-import { Mount, Neighbor } from '../objects/mount';
+import { MPDProtocol } from '../protocol.js';
+import { Mount, Neighbor } from '../objects/mount.js';
 
 export class MountCommands {
 

@@ -1,4 +1,4 @@
-import { getOptionalDate, parseOptionalNumber } from '../util';
+import { getOptionalDate, parseOptionalNumber } from '../util.js';
 
 /**
  * The types of objects in the music database
@@ -48,7 +48,7 @@ export class DirectoryEntry {
 
 export class File extends DirectoryEntry {
 
-	entryType!: 'file';
+	declare entryType: 'file';
 	size?: number;
 
 	constructor(valueMap: Map<string, string>) {
@@ -59,7 +59,7 @@ export class File extends DirectoryEntry {
 
 export class Song extends DirectoryEntry {
 
-	entryType!: 'song';
+	declare entryType: 'song';
 
 	/**
 	 * the song title
@@ -229,7 +229,7 @@ export class Song extends DirectoryEntry {
 
 export class Playlist extends DirectoryEntry {
 
-	entryType!: 'playlist';
+	declare entryType: 'playlist';
 
 	constructor(valueMap: Map<string, string>) {
 		super(valueMap, 'playlist', 'playlist');
@@ -238,7 +238,7 @@ export class Playlist extends DirectoryEntry {
 
 export class Directory extends DirectoryEntry {
 
-	entryType!: 'directory';
+	declare entryType: 'directory';
 
 	constructor(valueMap: Map<string, string>) {
 		super(valueMap, 'directory', 'directory');

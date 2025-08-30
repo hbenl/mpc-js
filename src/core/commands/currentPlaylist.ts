@@ -1,5 +1,5 @@
-import { MPDProtocol } from '../protocol';
-import { PlaylistItem, SongIdAndPosition } from '../objects/playlists';
+import { MPDProtocol } from '../protocol.js';
+import { PlaylistItem, SongIdAndPosition } from '../objects/playlists.js';
 
 export class CurrentPlaylistCommands {
 
@@ -23,7 +23,7 @@ export class CurrentPlaylistCommands {
 			cmd += ` ${position}`;
 		}
 		const lines = await this.protocol.sendCommand(cmd);
-		return Number(lines[0].substring(4));
+		return Number(lines[0]!.substring(4));
 	}
 
 	/**
@@ -109,7 +109,7 @@ export class CurrentPlaylistCommands {
 	async playlistId(songId: number): Promise<PlaylistItem> {
 		const cmd = `playlistid ${songId}`;
 		const lines = await this.protocol.sendCommand(cmd);
-		return this.protocol.parse(lines, [], valueMap => new PlaylistItem(valueMap))[0];
+		return this.protocol.parse(lines, [], valueMap => new PlaylistItem(valueMap))[0]!;
 	}
 
 	/**

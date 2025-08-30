@@ -1,5 +1,5 @@
-import { MPDProtocol } from '../protocol';
-import { StoredPlaylist, PlaylistItem } from '../objects/playlists';
+import { MPDProtocol } from '../protocol.js';
+import { StoredPlaylist, PlaylistItem } from '../objects/playlists.js';
 
 export class StoredPlaylistsCommands {
 

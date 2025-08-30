@@ -1,7 +1,7 @@
-import { MPDProtocol } from '../protocol';
-import { Decoder } from '../objects/decoder';
-import { stringStartsWith } from '../util';
-import { tagTypes } from './connection';
+import { MPDProtocol } from '../protocol.js';
+import { Decoder } from '../objects/decoder.js';
+import { stringStartsWith } from '../util.js';
+import { tagTypes } from './connection.js';
 
 export class ReflectionCommands {
 
@@ -15,7 +15,7 @@ export class ReflectionCommands {
 	 */
 	async config(): Promise<Map<string, string>> {
 		const lines = await this.protocol.sendCommand('config');
-		return this.protocol.parse(lines, [], valueMap => valueMap)[0];
+		return this.protocol.parse(lines, [], valueMap => valueMap)[0]!;
 	}
 
 	/**

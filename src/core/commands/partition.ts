@@ -1,4 +1,4 @@
-import { MPDProtocol } from '../protocol';
+import { MPDProtocol } from '../protocol.js';
 
 export class PartitionCommands {
 

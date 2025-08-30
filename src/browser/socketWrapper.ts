@@ -1,6 +1,4 @@
-import * as base64 from 'base64-js';
-import { TextEncoderLite, TextDecoderLite } from 'text-encoder-lite';
-import { SocketWrapper } from "mpc-js-core";
+import type { SocketWrapper } from "../core/socketWrapper.js";
 
 interface Deferred {
 	resolve: () => void;
@@ -10,15 +8,11 @@ interface Deferred {
 export class WebSocketWrapper implements SocketWrapper {
 
 	private url: string;
-	private textEncoder: TextEncoderLite;
-	private textDecoder: TextDecoderLite;
 	private wsClient?: WebSocket;
 	private deferred?: Deferred;
 
 	constructor(url: string) {
 		this.url = url;
-		this.textEncoder = new TextEncoderLite();
-		this.textDecoder = new TextDecoderLite();
 	}
 
 	connect(receive: (msg: string) => void, emit?: (eventName: string, arg?: any) => void): Promise<void> {
@@ -34,7 +28,7 @@ export class WebSocketWrapper implements SocketWrapper {
 				this.deferred.resolve();
 				this.deferred = undefined;
 			}
-			receive(this.textDecoder.decode(base64.toByteArray(e.data)));
+			receive(e.data); // TODO
 		}
 
 		this.wsClient.onerror = err => {
@@ -61,10 +55,10 @@ export class WebSocketWrapper implements SocketWrapper {
 	}
 
 	send(msg: string): void {
-		this.wsClient.send(base64.fromByteArray(this.textEncoder.encode(msg)));
+		this.wsClient!.send(msg); // TODO
 	}
 
 	disconnect(): void {
-		this.wsClient.close();
+		this.wsClient!.close();
 	}
 }

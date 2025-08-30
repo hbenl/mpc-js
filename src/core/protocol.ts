@@ -1,6 +1,6 @@
 import { EventEmitter } from 'eventemitter3';
-import { SocketWrapper } from './socketWrapper';
-import { stringStartsWith } from './util';
+import type { SocketWrapper } from './socketWrapper.js';
+import { stringStartsWith } from './util.js';
 
 /**
  * Implements the [general syntax](http://www.musicpd.org/doc/protocol/syntax.html)
@@ -110,7 +110,7 @@ export class MPDProtocol extends EventEmitter {
 		return result;
 	}
 
-	parseGrouped<T>(lines: string[], groupingTag: string): Map<string, string[]> {
+	parseGrouped<T>(lines: string[], groupingTag: string | undefined): Map<string, string[]> {
 		const result = new Map<string, string[]>();
 		let currentGroup = "";
 		let currentValues: string[] = [];
@@ -164,7 +164,7 @@ export class MPDProtocol extends EventEmitter {
 		}
 		const lines = msg.split('\n');
 		for (let i = 0; i < (lines.length - 1); i++) {
-			const line = lines[i];
+			const line = lines[i]!;
 			if ((line == 'list_OK') || (line == 'OK')) {
 				if (this.runningRequests.length > 0) {
 					const req = this.runningRequests.shift()!;
@@ -176,7 +176,7 @@ export class MPDProtocol extends EventEmitter {
 					const req = this.runningRequests.shift()!;
 					const match = MPDProtocol.failureRegExp.exec(line);
 					if (match != null) {
-						const mpdError: MPDError = { errorCode: Number(match[1]), errorMessage: match[2] };
+						const mpdError: MPDError = { errorCode: Number(match[1]), errorMessage: match[2]! };
 						req.reject(mpdError);
 						this.queuedRequests = this.runningRequests.concat(this.queuedRequests);
 						this.runningRequests = [];
@@ -187,9 +187,9 @@ export class MPDProtocol extends EventEmitter {
 				this.receivedLines.push(line);
 			}
 		}
-		this.receivedLines.push(lines[lines.length - 1]);
+		this.receivedLines.push(lines[lines.length - 1]!);
 		if ((lines.length >= 2) && (lines[lines.length - 1] == '') && 
-			((lines[lines.length - 2] == 'OK') || stringStartsWith(lines[lines.length - 2], 'ACK ['))) {
+			((lines[lines.length - 2] == 'OK') || stringStartsWith(lines[lines.length - 2]!, 'ACK ['))) {
 			this.dequeueRequests();
 		}
 	}
@@ -205,7 +205,7 @@ export class MPDProtocol extends EventEmitter {
 		}
 		let commandString: string;
 		if (this.runningRequests.length == 1) {
-			commandString = this.runningRequests[0].cmd + '\n';
+			commandString = this.runningRequests[0]!.cmd + '\n';
 		} else {
 			commandString = 'command_list_ok_begin\n';
 			this.runningRequests.forEach(command => {

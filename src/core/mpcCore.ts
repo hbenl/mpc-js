@@ -1,7 +1,7 @@
-import { MPDProtocol } from './protocol';
+import { MPDProtocol } from './protocol.js';
 import { StatusCommands, PlaybackCommands, PlaybackOptionsCommands, CurrentPlaylistCommands,
 	StoredPlaylistsCommands, DatabaseCommands, MountCommands, StickerCommands, ConnectionCommands,
-	PartitionCommands, OutputDeviceCommands, ReflectionCommands, ClientToClientCommands } from './commands/index';
+	PartitionCommands, OutputDeviceCommands, ReflectionCommands, ClientToClientCommands } from './commands/index.js';
 
 export class MPCCore extends MPDProtocol {
 

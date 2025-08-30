@@ -1,5 +1,5 @@
 import * as net from 'net';
-import { SocketWrapper } from 'mpc-js-core';
+import type { SocketWrapper } from '../core/socketWrapper.js';
 
 interface Deferred {
 	resolve: () => void;
@@ -52,20 +52,20 @@ export class NodeSocketWrapper implements SocketWrapper {
 		}]);
 
 		this.socketListeners.forEach(socketListener =>
-			this.socket.on(socketListener[0], socketListener[1]));
+			this.socket!.on(socketListener[0], socketListener[1]));
 
 		return promise;
 	}
 
 	send(msg: string): void {
-		this.socket.write(msg);
+		this.socket!.write(msg);
 	}
 
 	disconnect(): void {
 		this.socketListeners.forEach(socketListener =>
-			this.socket.removeListener(socketListener[0], socketListener[1]));
+			this.socket!.removeListener(socketListener[0], socketListener[1]));
 		this.socketListeners = [];
-		this.socket.end();
+		this.socket!.end();
 		this.socket = undefined;
 	}
 }

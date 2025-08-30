@@ -1,4 +1,4 @@
-import { getOptionalNumber } from '../util';
+import { getOptionalNumber } from '../util.js';
 
 export class Statistics {
 

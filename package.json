@@ -15,7 +15,12 @@
   },
   "license": "MIT",
   "author": "Holger Benl <hbenl@evandor.de>",
+  "type": "module",
   "devDependencies": {
+    "@types/node": "^24.3.0",
     "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.1"
   }
 }

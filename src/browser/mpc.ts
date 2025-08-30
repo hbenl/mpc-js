@@ -1,5 +1,5 @@
-import { MPCCore } from 'mpc-js-core';
-import { WebSocketWrapper } from './socketWrapper';
+import { MPCCore } from '../core/mpcCore.js';
+import { WebSocketWrapper } from './socketWrapper.js';
 
 export class MPC extends MPCCore {
 

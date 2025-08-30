@@ -31,7 +31,7 @@ export class OutputDevice {
 			for (const attrString of attrStrings) {
 				const keyAndValue = attrString.split('=');
 				if (keyAndValue.length === 2) {
-					this.attributes.set(keyAndValue[0], keyAndValue[1]);
+					this.attributes.set(keyAndValue[0]!, keyAndValue[1]!);
 				}
 			}
 		}

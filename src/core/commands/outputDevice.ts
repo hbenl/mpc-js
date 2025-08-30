@@ -1,5 +1,5 @@
-import { MPDProtocol } from '../protocol';
-import { OutputDevice } from '../objects/outputDevice';
+import { MPDProtocol } from '../protocol.js';
+import { OutputDevice } from '../objects/outputDevice.js';
 
 export class OutputDeviceCommands {
 

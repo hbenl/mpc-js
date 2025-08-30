@@ -1,6 +1,6 @@
 import * as net from 'net';
-import { MPCCore } from 'mpc-js-core';
-import { NodeSocketWrapper } from "./socketWrapper";
+import { MPCCore } from '../core/mpcCore.js';
+import { NodeSocketWrapper } from "./socketWrapper.js";
 
 export class MPC extends MPCCore {
 

@@ -1,4 +1,4 @@
-import { getOptionalDate } from '../util';
+import { getOptionalDate } from '../util.js';
 
 export class StoredPlaylist {
 

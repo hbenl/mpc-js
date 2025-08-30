@@ -1,4 +1,4 @@
-import { MPDProtocol } from '../protocol';
+import { MPDProtocol } from '../protocol.js';
 
 export class ClientToClientCommands {
 
@@ -35,9 +35,9 @@ export class ClientToClientCommands {
 	async readMessages(): Promise<Map<string, string[]>> {
 		const lines = await this.protocol.sendCommand('readmessages');
 		const messagesPerChannel = new Map<string, string[]>();
-		for (let i = 0; i < lines.length; i += 2) {
-			const channel = lines[i].substring(9);
-			const message = lines[i + 1].substring(9);
+		for (let i = 0; i < lines.length - 1; i += 2) {
+			const channel = lines[i]!.substring(9);
+			const message = lines[i + 1]!.substring(9);
 			if (!messagesPerChannel.has(channel)) {
 				messagesPerChannel.set(channel, []);
 			}

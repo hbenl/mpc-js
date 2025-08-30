@@ -1,4 +1,4 @@
-import { MPDProtocol } from '../protocol';
+import { MPDProtocol } from '../protocol.js';
 
 export class PlaybackOptionsCommands {
 
@@ -80,6 +80,6 @@ export class PlaybackOptionsCommands {
 
 	async getReplayGainMode(): Promise<'off' | 'track' | 'album' | 'auto'> {
 		const lines = await this.protocol.sendCommand('replay_gain_status');
-		return <'off' | 'track' | 'album' | 'auto'>lines[0].substring(18);
+		return <'off' | 'track' | 'album' | 'auto'>lines[0]!.substring(18);
 	}
 }
