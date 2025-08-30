@@ -1,0 +1,21 @@
+{
+  "name": "mpc-js",
+  "version": "2.0.0",
+  "description": "A javascript client library for the Music Player Daemon",
+  "keywords": [
+    "mpd"
+  ],
+  "homepage": "https://github.com/hbenl/mpc-js#readme",
+  "bugs": {
+    "url": "https://github.com/hbenl/mpc-js/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hbenl/mpc-js.git"
+  },
+  "license": "MIT",
+  "author": "Holger Benl <hbenl@evandor.de>",
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}
