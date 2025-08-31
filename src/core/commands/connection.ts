@@ -84,6 +84,6 @@ export class ConnectionCommands {
 }
 
 export async function tagTypes(protocol: MPDProtocol): Promise<string[]> {
-  const lines = await protocol.sendCommand('tagtypes');
+  const { lines } = await protocol.sendCommand('tagtypes');
   return lines.map(line => line.substring(9));
 }

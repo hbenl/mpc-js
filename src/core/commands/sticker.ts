@@ -9,7 +9,7 @@ export class StickerCommands {
    */
   async getSticker(type: string, uri: string, name: string): Promise<string> {
     const cmd = `sticker get ${type} "${uri}" "${name}"`;
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return lines[0]!.substring(name.length + 10);
   }
 
@@ -40,7 +40,7 @@ export class StickerCommands {
    */
   async listStickers(type: string, uri: string): Promise<Map<string, string>> {
     const cmd = `sticker list ${type} "${uri}"`;
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     const stickerMap = new Map<string, string>();
     lines.forEach(line => {
       const separatorIndex = line.indexOf('=');
@@ -66,7 +66,7 @@ export class StickerCommands {
     if (value) {
       cmd += ` ${operator} "${value}"`;
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     const fileAndStickers = this.protocol.parse(lines, ['file'], valueMap => valueMap);
     const stickerMap = new Map<string, string>();
     fileAndStickers.forEach(fileAndSticker => {

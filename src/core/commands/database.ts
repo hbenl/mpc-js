@@ -17,7 +17,7 @@ export class DatabaseCommands {
   async count(filter: string | [string, string][]): Promise<SongCount> {
     let cmd = 'count';
     cmd = addFilter(cmd, filter);
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, [], valueMap => new SongCount(valueMap))[0]!;
   }
 
@@ -35,7 +35,7 @@ export class DatabaseCommands {
     let cmd = 'count';
     cmd = addFilter(cmd, filter);
     cmd += ` group ${groupingTag}`;
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, [groupingTag], valueMap => new GroupedSongCount(valueMap, groupingTag));
   }
 
@@ -65,7 +65,7 @@ export class DatabaseCommands {
     cmd = addFilter(cmd, filter);
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file'], valueMap => <Song>DirectoryEntry.fromValueMap(valueMap, true));
   }
 
@@ -90,7 +90,7 @@ export class DatabaseCommands {
     cmd = addFilter(cmd, filter);
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file'], valueMap => <Song>DirectoryEntry.fromValueMap(valueMap, true));
   }
 
@@ -132,7 +132,7 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file', 'directory'], valueMap => <File | Directory>DirectoryEntry.fromValueMap(valueMap, false));
   }
 
@@ -148,7 +148,7 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file', 'playlist', 'directory'], valueMap => <Song | Playlist | Directory>DirectoryEntry.fromValueMap(valueMap, true));
   }
 
@@ -162,7 +162,7 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return lines.map(line => line.substring(line.indexOf(':') + 2));
   }
 
@@ -176,7 +176,7 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file', 'playlist', 'directory'], valueMap => <Song | Playlist | Directory>DirectoryEntry.fromValueMap(valueMap, true));
   }
 
@@ -197,7 +197,7 @@ export class DatabaseCommands {
     groupingTags.forEach(tag => {
       cmd += ` group ${tag}`;
     });
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     const tagsGroupedByString = this.protocol.parseGrouped(lines, groupingTags[0]);
     const groupedTags = new Map<string[], string[]>();
     tagsGroupedByString.forEach((tags, group) => {
@@ -216,7 +216,7 @@ export class DatabaseCommands {
    */
   async readComments(uri: string): Promise<Map<string, string>> {
     const cmd = `readcomments "${uri}"`;
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, [], valueMap => valueMap)[0]!;
   }
 
@@ -231,7 +231,7 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return Number(lines[0]!.substring(13));
   }
 
@@ -243,7 +243,7 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return Number(lines[0]!.substring(13));
   }
 }

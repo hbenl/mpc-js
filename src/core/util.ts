@@ -1,3 +1,5 @@
+import type { MPDError, MPDInitialResponse, MPDResponse } from "./protocol.js";
+
 export function stringStartsWith(str: string, prefix: string): boolean {
   return ((str.length >= prefix.length) && (str.substring(0, prefix.length) == prefix));
 }
@@ -16,4 +18,12 @@ export function getOptionalBoolean(valueMap: Map<string, string>, key: string): 
 
 export function parseOptionalNumber(num: string | undefined): number | undefined {
   return (num !== undefined) ? Number(num) : undefined;
+}
+
+export function isInitialResponse(response: MPDInitialResponse | MPDResponse | MPDError): response is MPDInitialResponse {
+  return 'version' in response;
+}
+
+export function isError(response: MPDInitialResponse | MPDResponse | MPDError): response is MPDError {
+  return 'errorMessage' in response;
 }

@@ -25,7 +25,7 @@ export class MountCommands {
    * Queries a list of all mounts. By default, this contains just the configured `music_directory`.
    */
   async listMounts(): Promise<Mount[]> {
-    const lines = await this.protocol.sendCommand('listmounts');
+    const { lines } = await this.protocol.sendCommand('listmounts');
     return this.protocol.parse(lines, ['mount'], valueMap => new Mount(valueMap));
   }
 
@@ -34,7 +34,7 @@ export class MountCommands {
    * Items on that list may be used with `mount()`.
    */
   async listNeighbors(): Promise<Neighbor[]> {
-    const lines = await this.protocol.sendCommand('listneighbors');
+    const { lines } = await this.protocol.sendCommand('listneighbors');
     return this.protocol.parse(lines, ['neighbor'], valueMap => new Neighbor(valueMap));
   }
 }

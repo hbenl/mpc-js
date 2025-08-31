@@ -25,7 +25,7 @@ export class ClientToClientCommands {
    * Obtain a list of all channels.
    */
   async channels(): Promise<string[]> {
-    const lines = await this.protocol.sendCommand('channels');
+    const { lines } = await this.protocol.sendCommand('channels');
     return lines.map(line => line.substring(9));
   }
 
@@ -33,7 +33,7 @@ export class ClientToClientCommands {
    * Reads messages for this client. Returns a Map containing the messages grouped by channel name.
    */
   async readMessages(): Promise<Map<string, string[]>> {
-    const lines = await this.protocol.sendCommand('readmessages');
+    const { lines } = await this.protocol.sendCommand('readmessages');
     const messagesPerChannel = new Map<string, string[]>();
     for (let i = 0; i < lines.length - 1; i += 2) {
       const channel = lines[i]!.substring(9);

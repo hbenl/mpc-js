@@ -15,7 +15,7 @@ export class PartitionCommands {
    * Returns a list of partitions.
    */
   async listPartitions(): Promise<string[]> {
-    const lines = await this.protocol.sendCommand('listpartitions');
+    const { lines } = await this.protocol.sendCommand('listpartitions');
     return this.protocol.parse(lines, ['partition'], 
       valueMap => valueMap.get('partition')!);
   }

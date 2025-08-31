@@ -9,7 +9,7 @@ export class StatusCommands {
    * Displays the song info of the current song (same song that is identified in status).
    */
   async currentSong(): Promise<PlaylistItem> {
-    const lines = await this.protocol.sendCommand('currentsong');
+    const { lines } = await this.protocol.sendCommand('currentsong');
     return this.protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap))[0]!;
   }
 
@@ -17,13 +17,13 @@ export class StatusCommands {
    * Reports the current status of the player and the volume level.
    */
   async status(): Promise<Status> {
-    const msg = await this.protocol.sendCommand('status');
-    return this.protocol.parse<Status>(msg, [], valueMap => new Status(valueMap))[0]!;
+    const { lines } = await this.protocol.sendCommand('status');
+    return this.protocol.parse<Status>(lines, [], valueMap => new Status(valueMap))[0]!;
   }
 
   async statistics(): Promise<Statistics> {
-    const msg = await this.protocol.sendCommand('stats');
-    return this.protocol.parse<Statistics>(msg, [], valueMap => new Statistics(valueMap))[0]!;
+    const { lines } = await this.protocol.sendCommand('stats');
+    return this.protocol.parse<Statistics>(lines, [], valueMap => new Statistics(valueMap))[0]!;
   }
 
   /**

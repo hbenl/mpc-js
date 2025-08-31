@@ -22,7 +22,7 @@ export class CurrentPlaylistCommands {
     if (position !== undefined) {
       cmd += ` ${position}`;
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return Number(lines[0]!.substring(4));
   }
 
@@ -90,7 +90,7 @@ export class CurrentPlaylistCommands {
    */
   async playlistFind(tag: string, needle: string): Promise<PlaylistItem[]> {
     const cmd = `playlistfind "${tag}" "${needle}"`;
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   }
 
@@ -99,7 +99,7 @@ export class CurrentPlaylistCommands {
    */
   async playlistSearch(tag: string, needle: string): Promise<PlaylistItem[]> {
     const cmd = `playlistsearch "${tag}" "${needle}"`;
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   }
 
@@ -108,7 +108,7 @@ export class CurrentPlaylistCommands {
    */
   async playlistId(songId: number): Promise<PlaylistItem> {
     const cmd = `playlistid ${songId}`;
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, [], valueMap => new PlaylistItem(valueMap))[0]!;
   }
 
@@ -120,7 +120,7 @@ export class CurrentPlaylistCommands {
     if (position !== undefined) {
       cmd += ` ${position}`;
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   }
 
@@ -132,7 +132,7 @@ export class CurrentPlaylistCommands {
     if (end !== undefined) {
       cmd += `${end}`;
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   }
 
@@ -149,7 +149,7 @@ export class CurrentPlaylistCommands {
         cmd += end;
       }
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   }
 
@@ -167,7 +167,7 @@ export class CurrentPlaylistCommands {
         cmd += end;
       }
     }
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['cpos'], valueMap => new SongIdAndPosition(valueMap));
   }
 

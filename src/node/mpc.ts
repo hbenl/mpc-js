@@ -1,15 +1,33 @@
-import * as net from 'net';
+import { connect, type Socket } from 'net';
 import { MPCCore } from '../core/mpcCore.js';
-import { NodeSocketWrapper } from "./socketWrapper.js";
 
 export class MPC extends MPCCore {
 
-  public connectTCP(hostname: string = 'localhost', port: number = 6600): Promise<void> {
-    return this.connect(new NodeSocketWrapper(() => net.connect(port, hostname)));
+  public connectTCP(hostname = 'localhost', port = 6600): Promise<void> {
+    return this.connectSocket(connect(port, hostname));
   }
 
   public connectUnixSocket(path: string): Promise<void> {
-    return this.connect(new NodeSocketWrapper(() => net.connect(path)));
+    return this.connectSocket(connect(path));
   }
 
+  private connectSocket(socket: Socket) {
+    return this.connect(
+      socketReadableStream(socket),
+      msg => socket.write(msg)
+    );
+  }
+}
+
+function socketReadableStream(socket: Socket): ReadableStream<ArrayBufferLike> {
+  return new ReadableStream<ArrayBufferLike>({
+    start(controller) {
+      socket.on('data', chunk => controller.enqueue(chunk.buffer));
+      socket.on('end', () => controller.close());
+      socket.on('error', err => controller.error(err));
+    },
+    cancel() {
+      socket.destroy();
+    }
+  });
 }

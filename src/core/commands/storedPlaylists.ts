@@ -11,7 +11,7 @@ export class StoredPlaylistsCommands {
    * server, clients should not compare this value with their local clock. 
    */
   async listPlaylists(): Promise<StoredPlaylist[]> {
-    const lines = await this.protocol.sendCommand('listplaylists');
+    const { lines } = await this.protocol.sendCommand('listplaylists');
     return this.protocol.parse(lines, ['playlist'], valueMap => new StoredPlaylist(valueMap));
   }
 
@@ -20,7 +20,7 @@ export class StoredPlaylistsCommands {
    */
   async listPlaylist(name: string): Promise<string[]> {
     const cmd = `listplaylist "${name}"`;
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return lines.map(line => line.substring(6));
   }
 
@@ -29,7 +29,7 @@ export class StoredPlaylistsCommands {
    */
   async listPlaylistInfo(name: string): Promise<PlaylistItem[]> {
     const cmd = `listplaylistinfo "${name}"`;
-    const lines = await this.protocol.sendCommand(cmd);
+    const { lines } = await this.protocol.sendCommand(cmd);
     return this.protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   }
 

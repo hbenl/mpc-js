@@ -9,7 +9,7 @@ export class OutputDeviceCommands {
    * Returns information about all outputs.
    */
   async outputs(): Promise<OutputDevice[]> {
-    const lines = await this.protocol.sendCommand('outputs');
+    const { lines } = await this.protocol.sendCommand('outputs');
     return this.protocol.parse(lines, ['outputid'], valueMap => new OutputDevice(valueMap));
   }
 

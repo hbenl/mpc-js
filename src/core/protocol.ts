@@ -1,6 +1,6 @@
 import { EventEmitter } from 'eventemitter3';
-import type { SocketWrapper } from './socketWrapper.js';
-import { stringStartsWith } from './util.js';
+import { decodeLines, groupResponseLines } from './transform.js';
+import { isError, isInitialResponse } from './util.js';
 
 /**
  * Implements the [general syntax](http://www.musicpd.org/doc/protocol/syntax.html)
@@ -8,15 +8,18 @@ import { stringStartsWith } from './util.js';
  */
 export class MPDProtocol extends EventEmitter {
 
-  private static failureRegExp = /ACK \[([0-9]+)@[0-9]+\] \{[^\}]*\} (.*)/;
+  private readonly encoder = new TextEncoder();
 
-  private _connection?: SocketWrapper;
+  private _connection?: {
+    responseStream: ReadableStream<MPDInitialResponse | MPDResponse | MPDError>;
+    responseReader: ReadableStreamDefaultReader<MPDInitialResponse | MPDResponse | MPDError>;
+    send: (msg: Uint8Array) => void;
+  }
 
   private ready = false;
   private idle = false;
-  private runningRequests: MPDRequest[] = [];
   private queuedRequests: MPDRequest[] = [];
-  private receivedLines: string[] = [];
+  private runningRequests: MPDRequest[] = [];
 
   /**
    * The version (major, minor, patch) of the connected daemon
@@ -26,48 +29,106 @@ export class MPDProtocol extends EventEmitter {
   get isReady() { return this.ready; }
 
   /**
-   * Connect to the daemon via the given connection
+   * Connect to the daemon
    */
-  protected connect(connection: SocketWrapper): Promise<void> {
+  protected connect(
+    byteStream: ReadableStream<ArrayBufferLike>,
+    send: (msg: Uint8Array) => void
+  ): Promise<void> {
 
     if (this._connection) {
       throw new Error('Client is already connected');
     }
 
-    this._connection = connection;
-    return this._connection.connect(
-      msg => this.processReceivedMessage(msg),
-      (eventName, arg) => this.emit(eventName, arg)
-    );
+    const responseStream = byteStream
+      .pipeThrough(decodeLines())
+      .pipeThrough(groupResponseLines());
+
+    this._connection = {
+      responseStream,
+      responseReader: responseStream.getReader(),
+      send,
+    };
+
+    return new Promise<void>(resolve => this.processResponses(resolve));
+  }
+
+  private async processResponses(initialCallback: () => void) {
+    const reader = this._connection!.responseReader;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          this.emit('socket-end');
+          this.disconnect();
+          return;
+        }
+
+        if (isInitialResponse(value)) {
+          this.mpdVersion = value.version;
+          this.ready = true;
+          initialCallback();
+          this.emit('ready');
+          this.dequeueRequests();
+          continue;
+        }
+
+        if (this.runningRequests.length === 0) {
+          const message = isError(value) ? value.errorMessage : value.lines.join('\n');
+          const errorMessage = `Received unexpected message:\n${message}`;
+          this.emit('socket-error', errorMessage);
+          this.disconnect({ errorCode: -1, errorMessage });
+          return;
+        }
+
+        const request = this.runningRequests.shift()!;
+        if (!isError(value)) {
+          request.resolve(value);
+        } else {
+          request.reject(value);
+          this.queuedRequests.push(...this.runningRequests);
+          this.runningRequests = [];
+        }
+
+        if (this.runningRequests.length === 0) {
+          this.dequeueRequests();
+        }
+      }
+    } catch (err) {
+      this.emit('socket-error', err);
+      this.disconnect({ errorCode: -1, errorMessage: `Unknown error: ${err}`});
+    }
   }
 
   /**
    * Disconnect from the daemon
    */
-  disconnect() {
+  disconnect(err = { errorCode: -1, errorMessage: 'Disconnected' }) {
 
-    if (!this._connection) {
-      throw new Error('Client isn\'t connected');
-    }
+    this.runningRequests.forEach(request => request.reject(err));
+    this.queuedRequests.forEach(request => request.reject(err));
 
-    this.runningRequests.forEach(request => request.reject('Disconnected'));
-    this.queuedRequests.forEach(request => request.reject('Disconnected'));
-
-    this._connection.disconnect();
-    this._connection = undefined;
     this.ready = false;
     this.idle = false;
     this.runningRequests = [];
     this.queuedRequests = [];
-    this.receivedLines = [];
+    this.mpdVersion = undefined;
+
+    const connection = this._connection;
+    if (connection) {
+      this._connection = undefined;
+      connection.responseReader.releaseLock();
+      connection.responseStream.cancel();
+    }
   }
 
   /**
-   * Send a command to the daemon. The returned promise will be resolved with an array 
+   * Send a command to the daemon. The returned promise will be resolved with an array
    * containing the lines of the daemon's response.
-   */  
-  sendCommand(cmd: string): Promise<string[]> {
-    return new Promise<string[]>((resolve, reject) => {
+   */
+  sendCommand(cmd: string): Promise<MPDResponse> {
+    return new Promise<MPDResponse>((resolve, reject) => {
       const mpdRequest = { cmd, resolve, reject };
       this.enqueueRequest(mpdRequest);
     });
@@ -78,7 +139,7 @@ export class MPDProtocol extends EventEmitter {
    * @param lines    The daemon response
    * @param markers  Markers are keys denoting the start of a new object within the response
    * @param convert  Converts a key-value Map from the response into the desired target object
-   */  
+   */
   parse<T>(lines: string[], markers: string[], convert: (valueMap: Map<string, string>) => T): T[] {
     const result = new Array<T>();
     let currentValueMap = new Map<string, string>();
@@ -146,51 +207,8 @@ export class MPDProtocol extends EventEmitter {
 
     this.queuedRequests.push(mpdRequest);
     if (this.idle) {
-      this._connection.send('noidle\n');
+      this.send('noidle\n');
       this.idle = false;
-    }
-  }
-
-  private processReceivedMessage(msg: string) {
-    if (!this.ready) {
-      this.initialCallback(msg.substring(0, msg.length - 1));
-      this.ready = true;
-      this.dequeueRequests();
-      return;
-    }
-    if (this.receivedLines.length > 0) {
-      const lastPreviousLine = this.receivedLines.pop();
-      msg = lastPreviousLine + msg;
-    }
-    const lines = msg.split('\n');
-    for (let i = 0; i < (lines.length - 1); i++) {
-      const line = lines[i]!;
-      if ((line == 'list_OK') || (line == 'OK')) {
-        if (this.runningRequests.length > 0) {
-          const req = this.runningRequests.shift()!;
-          req.resolve(this.receivedLines);
-          this.receivedLines = [];
-        }
-      } else if (stringStartsWith(line, 'ACK [')) {
-        if (this.runningRequests.length > 0) {
-          const req = this.runningRequests.shift()!;
-          const match = MPDProtocol.failureRegExp.exec(line);
-          if (match != null) {
-            const mpdError: MPDError = { errorCode: Number(match[1]), errorMessage: match[2]! };
-            req.reject(mpdError);
-            this.queuedRequests = this.runningRequests.concat(this.queuedRequests);
-            this.runningRequests = [];
-          }
-          this.receivedLines = [];
-        }
-      } else {
-        this.receivedLines.push(line);
-      }
-    }
-    this.receivedLines.push(lines[lines.length - 1]!);
-    if ((lines.length >= 2) && (lines[lines.length - 1] == '') && 
-      ((lines[lines.length - 2] == 'OK') || stringStartsWith(lines[lines.length - 2]!, 'ACK ['))) {
-      this.dequeueRequests();
     }
   }
 
@@ -200,7 +218,7 @@ export class MPDProtocol extends EventEmitter {
       this.queuedRequests = [];
       this.idle = false;
     } else {
-      this.runningRequests = [{ cmd: 'idle', resolve: lines => this.idleCallback(lines), reject: () => {} }];
+      this.runningRequests = [{ cmd: 'idle', resolve: response => this.idleCallback(response), reject: () => {} }];
       this.idle = true;
     }
     let commandString: string;
@@ -213,25 +231,29 @@ export class MPDProtocol extends EventEmitter {
       });
       commandString += 'command_list_end\n';
     }
-    this._connection!.send(commandString);
+    this.send(commandString);
   }
 
-  private initialCallback(msg: string) {
-
-    const match = /^OK MPD ([0-9]+)\.([0-9]+)\.([0-9]+)/.exec(msg);
-    if (!match) throw new Error(`Received unexpected initial message from mpd: '${msg}'`);
-
-    this.mpdVersion = [ Number(match[1]), Number(match[2]), Number(match[3]) ];
-    this.emit('ready');
-  }
-
-  private idleCallback(lines: string[]) {
+  private idleCallback(response: MPDResponse) {
     this.idle = false;
-    const subsystems = lines.map(changed => changed.substring(9));
+    const subsystems = response.lines.map(changed => changed.substring(9));
     this.emit('changed', subsystems);
     subsystems.forEach(subsystem => this.emit(`changed-${subsystem}`));
   }
+
+  private send(cmd: string) {
+    this._connection!.send(this.encoder.encode(cmd));
+  }
 }
+
+export interface MPDInitialResponse {
+  version: [number, number, number];
+}
+
+export interface MPDResponse {
+  lines: string[];
+  binary?: ArrayBuffer;
+};
 
 /**
  * A failure response from the daemon
@@ -243,6 +265,6 @@ export interface MPDError {
 
 interface MPDRequest {
   cmd: string;
-  resolve: (lines: string[]) => void;
-  reject: (error: any) => void;
+  resolve: (response: MPDResponse) => void;
+  reject: (error: MPDError) => void;
 }

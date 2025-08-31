@@ -14,7 +14,7 @@ export class ReflectionCommands {
    * * `music_directory`: The absolute path of the music directory.
    */
   async config(): Promise<Map<string, string>> {
-    const lines = await this.protocol.sendCommand('config');
+    const { lines } = await this.protocol.sendCommand('config');
     return this.protocol.parse(lines, [], valueMap => valueMap)[0]!;
   }
 
@@ -22,7 +22,7 @@ export class ReflectionCommands {
    * Shows which commands the current user has access to.
    */
   async commands(): Promise<string[]> {
-    const lines = await this.protocol.sendCommand('commands');
+    const { lines } = await this.protocol.sendCommand('commands');
     return lines.map(line => line.substring(9));
   }
 
@@ -30,7 +30,7 @@ export class ReflectionCommands {
    * Shows which commands the current user has access to.
    */
   async notCommands(): Promise<string[]> {
-    const lines = await this.protocol.sendCommand('notcommands');
+    const { lines } = await this.protocol.sendCommand('notcommands');
     return lines.map(line => line.substring(9));
   }
 
@@ -46,7 +46,7 @@ export class ReflectionCommands {
    * Gets a list of available URL handlers.
    */
   async urlHandlers(): Promise<string[]> {
-    const lines = await this.protocol.sendCommand('urlhandlers');
+    const { lines } = await this.protocol.sendCommand('urlhandlers');
     return lines.map(line => line.substring(9));
   }
 
@@ -54,7 +54,7 @@ export class ReflectionCommands {
    * Returns a list of decoder plugins with their supported suffixes and MIME types.
    */
   async decoders(): Promise<Decoder[]> {
-    const lines = await this.protocol.sendCommand('decoders');
+    const { lines } = await this.protocol.sendCommand('decoders');
     const decoders: Decoder[] = [];
     let currentDecoder: Decoder;
     lines.forEach(line => {
