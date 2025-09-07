@@ -16,6 +16,9 @@
   "license": "MIT",
   "author": "Holger Benl <hbenl@evandor.de>",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "files": [
     "src",
     "dist"
