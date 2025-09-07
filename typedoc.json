@@ -1,0 +1,7 @@
+{
+  "entryPoints": ["./src/node/index.ts", "./src/browser/index.ts"],
+  "out": "../mpc-js-doc/typedoc",
+  "sourceLinkTemplate": "https://github.com/hbenl/mpc-js/blob/master/{path}#L{line}",
+  "sourceLinkExternal": true,
+  "excludeProtected": true
+}
