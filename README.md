@@ -5,17 +5,63 @@ mpc.js is a javascript client library for the [Music Player Daemon](https://www.
 It features a Promise-based API for all [mpd commands](https://www.musicpd.org/doc/protocol/command_reference.html),
 type definitions for [Typescript](https://www.typescriptlang.org/) and works in both
 [node.js](https://nodejs.org/) and current browsers (connecting to mpd through a WebSocket bridge
-like [websockify](https://github.com/kanaka/websockify)).
+like [websockify](https://github.com/novnc/websockify)).
 
 ## Documentation
 
-Installation and usage examples for mpc.js can be found [here](https://github.com/hbenl/mpc-js-node)
-and [Typedoc](http://typedoc.org/)-generated API documentation is available 
-[here](https://hbenl.github.io/mpc-js-core/typedoc/classes/_mpccore_.mpccore.html).
+### Using in node.js
+
+#### ESM
+```
+import { MPC } from 'mpc-js';
+const mpc = new MPC();
+await mpc.connectTCP('localhost', 6600);
+...
+```
+
+#### CommonJS
+```
+const { MPC } = require('mpc-js');
+const mpc = new MPC();
+mpc.connectTCP('localhost', 6600).then(async () => {
+  ...
+});
+```
+
+### Using in the browser
+To use mpc-js in the browser, you first need to set up a WebSocket bridge through which the browser can connect to mpd:
+```
+npx github:endpointservices/websockify-js 8000 localhost:6600
+```
+If you use a bundler, you can `import { MPC } from 'mpc-js'` just as in node.
+Otherwise you can copy one of the bundles that can be used directly in the browser into your web folder:
+
+#### ESM
+Import [`dist/browser/mpc.min.mjs`](https://unpkg.com/mpc-js@latest/dist/browser/mpc.min.mjs) in your module:
+```
+<script type="module">
+  import { MPC } from './mpc.min.mjs';
+  const mpc = new MPC();
+  await mpc.connectWebSocket('ws://localhost:8000/');
+  ...
+</script>
+```
+
+#### UMD
+Use [`dist/browser/mpc.umd.min.js`](https://unpkg.com/mpc-js@latest/dist/browser/mpc.umd.min.js), which defines the global variable `MPC`:
+```
+<script src="./mpc.umd.min.js"></script>
+<script>
+  const mpc = new MPC();
+  mpc.connectWebSocket('ws://localhost:8000/').then(async () => {
+    ...
+  });
+</script>
+```
 
 ### API
 
-[Typedoc](http://typedoc.org/)-generated API documentation is available [here](https://hbenl.github.io/mpc-js-core/typedoc/classes/_mpccore_.mpccore.html).
+[Typedoc](https://typedoc.org/)-generated API documentation is available [here](https://hbenl.github.io/mpc-js/typedoc/classes/node.MPC.html).
 
 ### Events
 
