@@ -1,5 +1,5 @@
 import { MPDProtocol } from '../protocol.js';
-import { DirectoryEntry, File, Song, Playlist, Directory, SongCount, GroupedSongCount } from '../objects/database.js';
+import { DirectoryEntry, File, GroupedTagList, Song, Playlist, Directory, SongCount, GroupedSongCount } from '../objects/database.js';
 
 export class DatabaseCommands {
 
@@ -183,27 +183,59 @@ export class DatabaseCommands {
   /**
    * Lists unique tags values of the specified type. `type` can be any tag supported by MPD
    * or 'file', but 'file' is deprecated. `filter` specifies a filter like the one in `find()`.
-   * `groupingTags` may be used to group the results by one or more tags.
    * Note that tags are case sensitive and that the MPD documentation incorrectly lists all
    * tags as lower-case. Use `mpc.reflection.tagTypes()` to get the correct list of tags
    * supported by MPD.
    */
-  async list(type: string, filter: string | [string, string][] = [], groupingTags: string[] = []): Promise<Map<string[], string[]>> {
-    if (groupingTags.length > 1) {
-      throw new Error('Currently only zero or one grouping tags are supported');
-    }
+  async list(type: string, filter: string | [string, string][] = []): Promise<string[]> {
+    let cmd = `list ${type}`;
+    cmd = addFilter(cmd, filter);
+    const { lines } = await this.protocol.sendCommand(cmd);
+    return lines.map(line => line.substring(type.length + 2));
+  }
+
+  /**
+   * Lists unique tags values of the specified type. `type` can be any tag supported by MPD
+   * or 'file', but 'file' is deprecated. `filter` specifies a filter like the one in `find()`.
+   * `groupingTags` are used to group the results by one or more tags.
+   * Note that tags are case sensitive and that the MPD documentation incorrectly lists all
+   * tags as lower-case. Use `mpc.reflection.tagTypes()` to get the correct list of tags
+   * supported by MPD.
+   */
+  async listGrouped(type: string, groupingTags: [string, ...string[]], filter: string | [string, string][] = []): Promise<GroupedTagList[]> {
     let cmd = `list ${type}`;
     cmd = addFilter(cmd, filter);
     groupingTags.forEach(tag => {
       cmd += ` group ${tag}`;
     });
     const { lines } = await this.protocol.sendCommand(cmd);
-    const tagsGroupedByString = this.protocol.parseGrouped(lines, groupingTags[0]);
-    const groupedTags = new Map<string[], string[]>();
-    tagsGroupedByString.forEach((tags, group) => {
-      groupedTags.set((groupingTags.length === 0) ? [] : [group], tags);
+
+    const result: GroupedTagList[] = [];
+    let currentGroup = new Array(groupingTags.length).fill("");
+    let currentTags: string[] = [];
+    function saveCurrentTags() {
+      if (currentTags.length > 0) {
+        result.push(new GroupedTagList(currentGroup, currentTags));
+        currentGroup = [...currentGroup];
+        currentTags = [];
+      }
+    }
+    lines.forEach(line => {
+      const colonIndex = line.indexOf(':');
+      if (colonIndex > 0) {
+        const key = line.substring(0, colonIndex);
+        const value = line.substring(colonIndex + 2);
+        if (groupingTags.includes(key)) {
+          saveCurrentTags();
+          currentGroup[groupingTags.indexOf(key)] = value;
+        } else {
+          currentTags.push(value);
+        }
+      }
     });
-    return groupedTags;
+    saveCurrentTags();
+
+    return result;
   }
 
   /**

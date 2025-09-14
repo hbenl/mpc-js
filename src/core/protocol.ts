@@ -171,36 +171,6 @@ export class MPDProtocol extends EventEmitter {
     return result;
   }
 
-  parseGrouped<T>(lines: string[], groupingTag: string | undefined): Map<string, string[]> {
-    const result = new Map<string, string[]>();
-    let currentGroup = "";
-    let currentValues: string[] = [];
-    let lineCount = 0;
-
-    lines.forEach(line => {
-      const colonIndex = line.indexOf(':');
-      if (colonIndex > 0) {
-        const key = line.substring(0, colonIndex);
-        const value = line.substring(colonIndex + 2);
-        if (groupingTag == key) {
-          if (lineCount > 0) {
-            result.set(currentGroup, currentValues);
-          }
-          currentGroup = value;
-          currentValues = [];
-        } else {
-          currentValues.push(value);
-        }
-        lineCount++;
-      }
-    });
-    if (lineCount > 0) {
-      result.set(currentGroup, currentValues);
-    }
-
-    return result;
-  }
-
   private enqueueRequest(mpdRequest: MPDRequest) {
 
     if (!this._connection) throw new Error('Not connected');

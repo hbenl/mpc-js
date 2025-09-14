@@ -272,3 +272,10 @@ export class GroupedSongCount extends SongCount {
     this.group = valueMap.get(groupingTag)!;
   }
 }
+
+export class GroupedTagList {
+  constructor(
+    public group: string[],
+    public tags: string[]
+  ) {}
+}
