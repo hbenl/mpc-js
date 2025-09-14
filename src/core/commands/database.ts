@@ -14,7 +14,7 @@ export class DatabaseCommands {
    * tags as lower-case. Use `mpc.reflection.tagTypes()` to get the correct list of tags
    * supported by MPD.
    */
-  async count(filter: string | [string, string][]): Promise<SongCount> {
+  async count(filter: string | [string, string][] = []): Promise<SongCount> {
     let cmd = 'count';
     cmd = addFilter(cmd, filter);
     const { lines } = await this.protocol.sendCommand(cmd);
@@ -31,7 +31,7 @@ export class DatabaseCommands {
    * tags as lower-case. Use `mpc.reflection.tagTypes()` to get the correct list of tags
    * supported by MPD.
    */
-  async countGrouped(filter: string | [string, string][], groupingTag: string): Promise<GroupedSongCount[]> {
+  async countGrouped(groupingTag: string, filter: string | [string, string][] = []): Promise<GroupedSongCount[]> {
     let cmd = 'count';
     cmd = addFilter(cmd, filter);
     cmd += ` group ${groupingTag}`;
