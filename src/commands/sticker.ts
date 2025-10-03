@@ -1,17 +1,17 @@
 import { MPDProtocol } from '../protocol.js';
 
-export class StickerCommands {
+export interface StickerCommands extends ReturnType<typeof createStickerCommands>{}
 
-  constructor(private protocol: MPDProtocol) {}
+export const createStickerCommands = (protocol: MPDProtocol) => ({
 
   /**
    * Reads a sticker value for the specified object.
    */
   async getSticker(type: string, uri: string, name: string): Promise<string> {
     const cmd = `sticker get ${type} "${uri}" "${name}"`;
-    const { lines } = await this.protocol.sendCommand(cmd);
+    const { lines } = await protocol.sendCommand(cmd);
     return lines[0]!.substring(name.length + 10);
-  }
+  },
 
   /**
    * Adds a sticker value to the specified object.
@@ -19,8 +19,8 @@ export class StickerCommands {
    */
   async setSticker(type: string, uri: string, name: string, value: string): Promise<void> {
     const cmd = `sticker set ${type} "${uri}" "${name}" "${value}"`;
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Deletes a sticker value from the specified object.
@@ -31,8 +31,8 @@ export class StickerCommands {
     if (name) {
       cmd += ` "${name}"`;
     }
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Lists the stickers for the specified object.
@@ -40,14 +40,14 @@ export class StickerCommands {
    */
   async listStickers(type: string, uri: string): Promise<Map<string, string>> {
     const cmd = `sticker list ${type} "${uri}"`;
-    const { lines } = await this.protocol.sendCommand(cmd);
+    const { lines } = await protocol.sendCommand(cmd);
     const stickerMap = new Map<string, string>();
     lines.forEach(line => {
       const separatorIndex = line.indexOf('=');
       stickerMap.set(line.substring(9, separatorIndex), line.substring(separatorIndex + 1));
     });
     return stickerMap;
-  }
+  },
 
   /**
    * Searches the sticker database for stickers with the specified name,
@@ -66,8 +66,8 @@ export class StickerCommands {
     if (value) {
       cmd += ` ${operator} "${value}"`;
     }
-    const { lines } = await this.protocol.sendCommand(cmd);
-    const fileAndStickers = this.protocol.parse(lines, ['file'], valueMap => valueMap);
+    const { lines } = await protocol.sendCommand(cmd);
+    const fileAndStickers = protocol.parse(lines, ['file'], valueMap => valueMap);
     const stickerMap = new Map<string, string>();
     fileAndStickers.forEach(fileAndSticker => {
       const fileValue = fileAndSticker.get('file');
@@ -78,5 +78,5 @@ export class StickerCommands {
       }
     });
     return stickerMap;
-  }
-}
+  },
+});

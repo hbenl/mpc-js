@@ -3,9 +3,9 @@ import { Decoder } from '../objects/decoder.js';
 import { stringStartsWith } from '../util.js';
 import { tagTypes } from './connection.js';
 
-export class ReflectionCommands {
+export interface ReflectionCommands extends ReturnType<typeof createReflectionCommands>{}
 
-  constructor(private protocol: MPDProtocol) {}
+export const createReflectionCommands = (protocol: MPDProtocol) => ({
 
   /**
    * Dumps configuration values that may be interesting for the client.
@@ -14,47 +14,47 @@ export class ReflectionCommands {
    * * `music_directory`: The absolute path of the music directory.
    */
   async config(): Promise<Map<string, string>> {
-    const { lines } = await this.protocol.sendCommand('config');
-    return this.protocol.parse(lines, [], valueMap => valueMap)[0]!;
-  }
+    const { lines } = await protocol.sendCommand('config');
+    return protocol.parse(lines, [], valueMap => valueMap)[0]!;
+  },
 
   /**
    * Shows which commands the current user has access to.
    */
   async commands(): Promise<string[]> {
-    const { lines } = await this.protocol.sendCommand('commands');
+    const { lines } = await protocol.sendCommand('commands');
     return lines.map(line => line.substring(9));
-  }
+  },
 
   /**
    * Shows which commands the current user has access to.
    */
   async notCommands(): Promise<string[]> {
-    const { lines } = await this.protocol.sendCommand('notcommands');
+    const { lines } = await protocol.sendCommand('notcommands');
     return lines.map(line => line.substring(9));
-  }
+  },
 
   /**
    * This method is identical to the method by the same name in the ConnectionCommands class.
    * It is only provided here for backward compatibility.
    */
   tagTypes(): Promise<string[]> {
-    return tagTypes(this.protocol);
-  }
+    return tagTypes(protocol);
+  },
 
   /**
    * Gets a list of available URL handlers.
    */
   async urlHandlers(): Promise<string[]> {
-    const { lines } = await this.protocol.sendCommand('urlhandlers');
+    const { lines } = await protocol.sendCommand('urlhandlers');
     return lines.map(line => line.substring(9));
-  }
+  },
 
   /**
    * Returns a list of decoder plugins with their supported suffixes and MIME types.
    */
   async decoders(): Promise<Decoder[]> {
-    const { lines } = await this.protocol.sendCommand('decoders');
+    const { lines } = await protocol.sendCommand('decoders');
     const decoders: Decoder[] = [];
     let currentDecoder: Decoder;
     lines.forEach(line => {
@@ -72,5 +72,5 @@ export class ReflectionCommands {
       }
     });
     return decoders;
-  }
-}
+  },
+});

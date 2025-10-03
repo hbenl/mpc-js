@@ -1,8 +1,8 @@
 import { MPDProtocol } from '../protocol.js';
 
-export class PlaybackCommands {
+export interface PlaybackCommands extends ReturnType<typeof createPlaybackCommands>{}
 
-  constructor(private protocol: MPDProtocol) {}
+export const createPlaybackCommands = (protocol: MPDProtocol) => ({
 
   /**
    * Begins playing the playlist at song number songPos.
@@ -12,8 +12,8 @@ export class PlaybackCommands {
     if (songPos !== undefined) {
       cmd += ` ${songPos}`;
     }
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Begins playing the playlist at song with the given songId.
@@ -23,38 +23,38 @@ export class PlaybackCommands {
     if (songId !== undefined) {
       cmd += ` ${songId}`;
     }
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Plays the previous song in the playlist.
    */
   async previous(): Promise<void> {
-    await this.protocol.sendCommand('previous');
-  }
+    await protocol.sendCommand('previous');
+  },
 
   /**
    * Plays the next song in the playlist.
    */
   async next(): Promise<void> {
-    await this.protocol.sendCommand('next');
-  }
+    await protocol.sendCommand('next');
+  },
 
   /**
    * Seeks to the position time (in seconds; fractions allowed) of entry songPos in the playlist.
    */
   async seek(songPos: number, time: number) {
     const cmd = `seek ${songPos} ${time}`;
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Seeks to the position time (in seconds; fractions allowed) of song with the given songId. 
    */
   async seekId(songId: number, time: number) {
     const cmd = `seekid ${songId} ${time}`;
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Seeks to the position time (in seconds; fractions allowed) within the current song.
@@ -67,21 +67,21 @@ export class PlaybackCommands {
     } else {
       cmd = `seekcur ${time}`;
     }
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Pauses or resumes playback.
    */
   async pause(pause: boolean = true): Promise<void> {
     const cmd = `pause ${pause ? 1 : 0}`;
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Stops playing.
    */
   async stop(): Promise<void> {
-    await this.protocol.sendCommand('stop');
-  }
-}
+    await protocol.sendCommand('stop');
+  },
+});

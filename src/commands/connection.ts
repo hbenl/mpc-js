@@ -1,8 +1,8 @@
 import { MPDProtocol } from '../protocol.js';
 
-export class ConnectionCommands {
+export interface ConnectionCommands extends ReturnType<typeof createConnectionCommands>{}
 
-  constructor(private protocol: MPDProtocol) {}
+export const createConnectionCommands = (protocol: MPDProtocol) => ({
 
   /**
    * Closes the connection to MPD. MPD will try to send the remaining output buffer before it
@@ -10,30 +10,30 @@ export class ConnectionCommands {
    * generate a response.
    */
   close(): void {
-    this.protocol.sendCommand('close');
-  }
+    protocol.sendCommand('close');
+  },
 
   /**
    * Kills MPD.
    */
   kill(): void {
-    this.protocol.sendCommand('kill');
-  }
+    protocol.sendCommand('kill');
+  },
 
   /**
    * This is used for authentication with the server. `password` is simply the plaintext password.
    */
   async password(password: string): Promise<void> {
     const cmd = `password "${password}"`;
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Does nothing but return "OK".
    */
   async ping(): Promise<void> {
-    await this.protocol.sendCommand('ping');
-  }
+    await protocol.sendCommand('ping');
+  },
 
   /**
    * Shows a list of available tag types. It is an intersection of the
@@ -43,8 +43,8 @@ export class ConnectionCommands {
    * That is a good idea, because it makes responses smaller.
    */
   tagTypes(): Promise<string[]> {
-    return tagTypes(this.protocol);
-  }
+    return tagTypes(protocol);
+  },
 
   /**
    * Remove one or more tags from the list of tag types the client is interested in.
@@ -53,8 +53,8 @@ export class ConnectionCommands {
   async disableTagTypes(names: string[]): Promise<void> {
     if (names.length < 1) return;
     const cmd = `tagtypes disable ${names.join(' ')}`;
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Re-enable one or more tags from the list of tag types for this client.
@@ -63,25 +63,25 @@ export class ConnectionCommands {
   async enableTagTypes(names: string[]): Promise<void> {
     if (names.length < 1) return;
     const cmd = `tagtypes enable ${names.join(' ')}`;
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Clear the list of tag types this client is interested in.
    * This means that MPD will not send any tags to this client.
    */
   async clearTagTypes(): Promise<void> {
-    await this.protocol.sendCommand('tagtypes clear');
-  }
+    await protocol.sendCommand('tagtypes clear');
+  },
 
   /**
    * Announce that this client is interested in all tag types.
    * This is the default setting for new clients.
    */
   async allTagTypes(): Promise<void> {
-    await this.protocol.sendCommand('tagtypes all');
-  }
-}
+    await protocol.sendCommand('tagtypes all');
+  },
+});
 
 export async function tagTypes(protocol: MPDProtocol): Promise<string[]> {
   const { lines } = await protocol.sendCommand('tagtypes');

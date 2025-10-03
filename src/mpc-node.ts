@@ -1,6 +1,6 @@
 import { connect, type Socket } from 'net';
 import { MPC as MPCBase } from './mpc.js';
-export type { MPDProtocol, MPDResponse, MPDError } from './protocol.js';
+export type { MPDResponse, MPDError } from './protocol.js';
 export type * from './commands/index.js';
 export type * from './objects/index.js';
 

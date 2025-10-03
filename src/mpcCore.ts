@@ -1,7 +1,17 @@
 import { MPDProtocol } from './protocol.js';
-import { StatusCommands, PlaybackCommands, PlaybackOptionsCommands, CurrentPlaylistCommands,
-  StoredPlaylistsCommands, DatabaseCommands, MountCommands, StickerCommands, ConnectionCommands,
-  PartitionCommands, OutputDeviceCommands, ReflectionCommands, ClientToClientCommands } from './commands/index.js';
+import { type StatusCommands, createStatusCommands } from './commands/status.js';
+import { type PlaybackCommands, createPlaybackCommands } from './commands/playback.js';
+import { type PlaybackOptionsCommands, createPlaybackOptionsCommands } from './commands/playbackOptions.js';
+import { type CurrentPlaylistCommands, createCurrentPlaylistCommands } from './commands/currentPlaylist.js';
+import { type StoredPlaylistsCommands, createStoredPlaylistsCommands } from './commands/storedPlaylists.js';
+import { type DatabaseCommands, createDatabaseCommands } from './commands/database.js';
+import { type MountCommands, createMountCommands } from './commands/mount.js';
+import { type StickerCommands, createStickerCommands } from './commands/sticker.js';
+import { type ConnectionCommands, createConnectionCommands } from './commands/connection.js';
+import { type PartitionCommands, createPartitionCommands } from './commands/partition.js';
+import { type OutputDeviceCommands, createOutputDeviceCommands } from './commands/outputDevice.js';
+import { type ReflectionCommands, createReflectionCommands } from './commands/reflection.js';
+import { type ClientToClientCommands, createClientToClientCommands } from './commands/clientToClient.js';
 
 export class MPCCore extends MPDProtocol {
 
@@ -21,18 +31,18 @@ export class MPCCore extends MPDProtocol {
 
   constructor() {
     super();
-    this.status = new StatusCommands(this);
-    this.playback = new PlaybackCommands(this);
-    this.playbackOptions = new PlaybackOptionsCommands(this);
-    this.currentPlaylist = new CurrentPlaylistCommands(this);
-    this.storedPlaylists = new StoredPlaylistsCommands(this);
-    this.database = new DatabaseCommands(this);
-    this.mounts = new MountCommands(this);
-    this.stickers = new StickerCommands(this);
-    this.connection = new ConnectionCommands(this);
-    this.partition = new PartitionCommands(this);
-    this.outputDevices = new OutputDeviceCommands(this);
-    this.reflection = new ReflectionCommands(this);
-    this.clientToClient = new ClientToClientCommands(this);
+    this.status = createStatusCommands(this);
+    this.playback = createPlaybackCommands(this);
+    this.playbackOptions = createPlaybackOptionsCommands(this);
+    this.currentPlaylist = createCurrentPlaylistCommands(this);
+    this.storedPlaylists = createStoredPlaylistsCommands(this);
+    this.database = createDatabaseCommands(this);
+    this.mounts = createMountCommands(this);
+    this.stickers = createStickerCommands(this);
+    this.connection = createConnectionCommands(this);
+    this.partition = createPartitionCommands(this);
+    this.outputDevices = createOutputDeviceCommands(this);
+    this.reflection = createReflectionCommands(this);
+    this.clientToClient = createClientToClientCommands(this);
   }
 }

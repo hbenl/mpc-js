@@ -1,9 +1,9 @@
 import { MPDProtocol } from '../protocol.js';
 import { DirectoryEntry, File, GroupedTagList, Song, Playlist, Directory, SongCount, GroupedSongCount } from '../objects/database.js';
 
-export class DatabaseCommands {
+export interface DatabaseCommands extends ReturnType<typeof createDatabaseCommands>{}
 
-  constructor(private protocol: MPDProtocol) {}
+export const createDatabaseCommands = (protocol: MPDProtocol) => ({
 
   /**
    * Counts the number of songs and their total playtime in the database that match exactly.
@@ -17,9 +17,9 @@ export class DatabaseCommands {
   async count(filter: string | [string, string][] = []): Promise<SongCount> {
     let cmd = 'count';
     cmd = addFilter(cmd, filter);
-    const { lines } = await this.protocol.sendCommand(cmd);
-    return this.protocol.parse(lines, [], valueMap => new SongCount(valueMap))[0]!;
-  }
+    const { lines } = await protocol.sendCommand(cmd);
+    return protocol.parse(lines, [], valueMap => new SongCount(valueMap))[0]!;
+  },
 
   /**
    * Counts the number of songs and their total playtime in the database that match exactly.
@@ -35,9 +35,9 @@ export class DatabaseCommands {
     let cmd = 'count';
     cmd = addFilter(cmd, filter);
     cmd += ` group ${groupingTag}`;
-    const { lines } = await this.protocol.sendCommand(cmd);
-    return this.protocol.parse(lines, [groupingTag], valueMap => new GroupedSongCount(valueMap, groupingTag));
-  }
+    const { lines } = await protocol.sendCommand(cmd);
+    return protocol.parse(lines, [groupingTag], valueMap => new GroupedSongCount(valueMap, groupingTag));
+  },
 
   /**
    * Finds songs in the database that match exactly.
@@ -65,9 +65,9 @@ export class DatabaseCommands {
     cmd = addFilter(cmd, filter);
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
-    const { lines } = await this.protocol.sendCommand(cmd);
-    return this.protocol.parse(lines, ['file'], valueMap => <Song>DirectoryEntry.fromValueMap(valueMap, true));
-  }
+    const { lines } = await protocol.sendCommand(cmd);
+    return protocol.parse(lines, ['file'], valueMap => <Song>DirectoryEntry.fromValueMap(valueMap, true));
+  },
 
   /**
    * Finds songs in the database that match exactly and adds them to the current playlist.
@@ -78,8 +78,8 @@ export class DatabaseCommands {
     cmd = addFilter(cmd, filter);
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Searches for any song that matches. Parameters have the same meaning as for `find()`,
@@ -90,9 +90,9 @@ export class DatabaseCommands {
     cmd = addFilter(cmd, filter);
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
-    const { lines } = await this.protocol.sendCommand(cmd);
-    return this.protocol.parse(lines, ['file'], valueMap => <Song>DirectoryEntry.fromValueMap(valueMap, true));
-  }
+    const { lines } = await protocol.sendCommand(cmd);
+    return protocol.parse(lines, ['file'], valueMap => <Song>DirectoryEntry.fromValueMap(valueMap, true));
+  },
 
   /**
    * Searches for any song that matches and adds them to the current playlist.
@@ -104,8 +104,8 @@ export class DatabaseCommands {
     cmd = addFilter(cmd, filter);
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Searches for any song that matches and adds them to the playlist named `name`.
@@ -118,8 +118,8 @@ export class DatabaseCommands {
     cmd = addFilter(cmd, filter);
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Lists the contents of the directory `uri`, including files are not recognized by MPD.
@@ -132,9 +132,9 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const { lines } = await this.protocol.sendCommand(cmd);
-    return this.protocol.parse(lines, ['file', 'directory'], valueMap => <File | Directory>DirectoryEntry.fromValueMap(valueMap, false));
-  }
+    const { lines } = await protocol.sendCommand(cmd);
+    return protocol.parse(lines, ['file', 'directory'], valueMap => <File | Directory>DirectoryEntry.fromValueMap(valueMap, false));
+  },
 
   /**
    * Lists the contents of the directory `uri`. When listing the root directory, this currently
@@ -148,9 +148,9 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const { lines } = await this.protocol.sendCommand(cmd);
-    return this.protocol.parse(lines, ['file', 'playlist', 'directory'], valueMap => <Song | Playlist | Directory>DirectoryEntry.fromValueMap(valueMap, true));
-  }
+    const { lines } = await protocol.sendCommand(cmd);
+    return protocol.parse(lines, ['file', 'playlist', 'directory'], valueMap => <Song | Playlist | Directory>DirectoryEntry.fromValueMap(valueMap, true));
+  },
 
   /**
    * Lists all songs and directories in `uri` recursively. Do not use this command to manage a
@@ -162,9 +162,9 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const { lines } = await this.protocol.sendCommand(cmd);
+    const { lines } = await protocol.sendCommand(cmd);
     return lines.map(line => line.substring(line.indexOf(':') + 2));
-  }
+  },
 
   /**
    * Same as `listAll()`, except it also returns metadata info. Do not use this command to
@@ -176,9 +176,9 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const { lines } = await this.protocol.sendCommand(cmd);
-    return this.protocol.parse(lines, ['file', 'playlist', 'directory'], valueMap => <Song | Playlist | Directory>DirectoryEntry.fromValueMap(valueMap, true));
-  }
+    const { lines } = await protocol.sendCommand(cmd);
+    return protocol.parse(lines, ['file', 'playlist', 'directory'], valueMap => <Song | Playlist | Directory>DirectoryEntry.fromValueMap(valueMap, true));
+  },
 
   /**
    * Lists unique tags values of the specified type. `type` can be any tag supported by MPD
@@ -190,9 +190,9 @@ export class DatabaseCommands {
   async list(type: string, filter: string | [string, string][] = []): Promise<string[]> {
     let cmd = `list ${type}`;
     cmd = addFilter(cmd, filter);
-    const { lines } = await this.protocol.sendCommand(cmd);
+    const { lines } = await protocol.sendCommand(cmd);
     return lines.map(line => line.substring(type.length + 2));
-  }
+  },
 
   /**
    * Lists unique tags values of the specified type. `type` can be any tag supported by MPD
@@ -208,7 +208,7 @@ export class DatabaseCommands {
     groupingTags.forEach(tag => {
       cmd += ` group ${tag}`;
     });
-    const { lines } = await this.protocol.sendCommand(cmd);
+    const { lines } = await protocol.sendCommand(cmd);
 
     const result: GroupedTagList[] = [];
     let currentGroup = new Array(groupingTags.length).fill("");
@@ -236,7 +236,7 @@ export class DatabaseCommands {
     saveCurrentTags();
 
     return result;
-  }
+  },
 
   /**
    * Read "comments" (i.e. key-value pairs) from the file specified by `uri`. This `uri` can be
@@ -248,9 +248,9 @@ export class DatabaseCommands {
    */
   async readComments(uri: string): Promise<Map<string, string>> {
     const cmd = `readcomments "${uri}"`;
-    const { lines } = await this.protocol.sendCommand(cmd);
-    return this.protocol.parse(lines, [], valueMap => valueMap)[0]!;
-  }
+    const { lines } = await protocol.sendCommand(cmd);
+    return protocol.parse(lines, [], valueMap => valueMap)[0]!;
+  },
 
   /**
    * Updates the music database: find new files, remove deleted files, update modified files.
@@ -263,9 +263,9 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const { lines } = await this.protocol.sendCommand(cmd);
+    const { lines } = await protocol.sendCommand(cmd);
     return Number(lines[0]!.substring(13));
-  }
+  },
 
   /**
    * Same as `update()`, but also rescans unmodified files.
@@ -275,10 +275,10 @@ export class DatabaseCommands {
     if (uri) {
       cmd += ` "${uri}"`;
     }
-    const { lines } = await this.protocol.sendCommand(cmd);
+    const { lines } = await protocol.sendCommand(cmd);
     return Number(lines[0]!.substring(13));
-  }
-}
+  },
+});
 
 function addFilter(cmd: string, filter: string | [string, string][]): string {
   if (typeof filter === 'string') {

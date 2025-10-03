@@ -1,8 +1,8 @@
 import { MPDProtocol } from '../protocol.js';
 
-export class ClientToClientCommands {
+export interface ClientToClientCommands extends ReturnType<typeof createClientToClientCommands>{}
 
-  constructor(private protocol: MPDProtocol) {}
+export const createClientToClientCommands = (protocol: MPDProtocol) => ({
 
   /**
    * Subscribe to a channel. The channel is created if it does not exist already.
@@ -10,30 +10,30 @@ export class ClientToClientCommands {
    */
   async subscribe(channel: string): Promise<void> {
     const cmd = `subscribe ${channel}`;
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Unsubscribe from a channel.
    */
   async unsubscribe(channel: string): Promise<void> {
     const cmd = `unsubscribe ${channel}`;
-    await this.protocol.sendCommand(cmd);
-  }
+    await protocol.sendCommand(cmd);
+  },
 
   /**
    * Obtain a list of all channels.
    */
   async channels(): Promise<string[]> {
-    const { lines } = await this.protocol.sendCommand('channels');
+    const { lines } = await protocol.sendCommand('channels');
     return lines.map(line => line.substring(9));
-  }
+  },
 
   /**
    * Reads messages for this client. Returns a Map containing the messages grouped by channel name.
    */
   async readMessages(): Promise<Map<string, string[]>> {
-    const { lines } = await this.protocol.sendCommand('readmessages');
+    const { lines } = await protocol.sendCommand('readmessages');
     const messagesPerChannel = new Map<string, string[]>();
     for (let i = 0; i < lines.length - 1; i += 2) {
       const channel = lines[i]!.substring(9);
@@ -44,13 +44,13 @@ export class ClientToClientCommands {
       messagesPerChannel.get(channel)!.push(message);
     }
     return messagesPerChannel;
-  }
+  },
 
   /**
    * Send a message to the specified channel.
    */
   async sendMessage(channel: string, text: string): Promise<void> {
     const cmd = `sendmessage ${channel} "${text}"`;
-    await this.protocol.sendCommand(cmd);
-  }
-}
+    await protocol.sendCommand(cmd);
+  },
+});
