@@ -1,4 +1,7 @@
-import { MPCCore } from '../core/mpcCore.js';
+import { MPCCore } from './mpcCore.js';
+export type { MPDError } from './protocol.js';
+export type * from './commands/index.js';
+export type * from './objects/index.js';
 
 export class MPC extends MPCCore {
 

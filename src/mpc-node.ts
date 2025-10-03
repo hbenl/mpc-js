@@ -1,7 +1,10 @@
 import { connect, type Socket } from 'net';
-import { MPCCore } from '../core/mpcCore.js';
+import { MPC as MPCBase } from './mpc.js';
+export type { MPDProtocol, MPDResponse, MPDError } from './protocol.js';
+export type * from './commands/index.js';
+export type * from './objects/index.js';
 
-export class MPC extends MPCCore {
+export class MPC extends MPCBase {
 
   public connectTCP(hostname = 'localhost', port = 6600): Promise<void> {
     return this.connectSocket(connect(port, hostname));

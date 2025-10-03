@@ -25,20 +25,20 @@
   ],
   "exports": {
     "browser": {
-      "types": "./dist/browser/mpc.d.ts",
-      "script": "./dist/browser/mpc.umd.min.js",
-      "require": "./dist/browser/mpc.cjs",
-      "default": "./dist/browser/mpc.mjs"
+      "types": "./dist/mpc.d.ts",
+      "script": "./dist/mpc.umd.min.js",
+      "require": "./dist/mpc.cjs",
+      "default": "./dist/mpc.mjs"
     },
     "default": {
-      "types": "./dist/node/mpc.d.ts",
-      "require": "./dist/node/mpc.cjs",
-      "default": "./dist/node/mpc.mjs"
+      "types": "./dist/mpc-node.d.ts",
+      "require": "./dist/mpc-node.cjs",
+      "default": "./dist/mpc-node.mjs"
     }
   },
-  "main": "./dist/node/mpc.cjs",
-  "types": "./dist/node/mpc.d.ts",
-  "browser": "./dist/browser/mpc.cjs",
+  "main": "./dist/mpc-node.cjs",
+  "types": "./dist/mpc-node.d.ts",
+  "browser": "./dist/mpc.cjs",
   "scripts": {
     "build": "npm run clean && npm run compile && npm run bundle",
     "clean": "rimraf out dist",

@@ -5,47 +5,34 @@ import terser from '@rollup/plugin-terser';
 import dts from 'rollup-plugin-dts';
 
 export default [{
-  input: 'out/node/index.js',
+  input: ['out/mpc.js', 'out/mpc-node.js'],
   output: [{
-    file: 'dist/node/mpc.mjs',
+    dir: 'dist',
     format: 'esm',
+    entryFileNames: '[name].mjs',
     sourcemap: true,
     sourcemapExcludeSources: true
   }, {
-    file: 'dist/node/mpc.cjs',
+    dir: 'dist',
     format: 'cjs',
+    entryFileNames: '[name].cjs',
     sourcemap: true,
     sourcemapExcludeSources: true
   }],
   external: [ 'net', 'eventemitter3' ],
   plugins: [ sourcemaps() ]
 }, {
-  input: 'out/node/index.d.ts',
-  output: { file: 'dist/node/mpc.d.ts' },
+  input: 'out/mpc.js',
+  output: { file: 'dist/mpc.d.ts' },
   plugins: [ dts() ]
 }, {
-  input: 'out/browser/index.js',
-  output: [{
-    file: 'dist/browser/mpc.mjs',
-    format: 'esm',
-    sourcemap: true,
-    sourcemapExcludeSources: true
-  }, {
-    file: 'dist/browser/mpc.cjs',
-    format: 'cjs',
-    sourcemap: true,
-    sourcemapExcludeSources: true
-  }],
-  external: [ 'eventemitter3' ],
-  plugins: [ sourcemaps() ]
-}, {
-  input: 'out/browser/index.d.ts',
-  output: { file: 'dist/browser/mpc.d.ts' },
+  input: 'out/mpc-node.js',
+  output: { file: 'dist/mpc-node.d.ts' },
   plugins: [ dts() ]
 }, {
-  input: 'out/browser/index.js',
+  input: 'out/mpc.js',
   output: [{
-    file: 'dist/browser/mpc.min.mjs',
+    file: 'dist/mpc.min.mjs',
     format: 'esm',
     sourcemap: true
   }],
@@ -56,9 +43,9 @@ export default [{
     terser(),
   ]
 }, {
-  input: 'out/browser/index.default.js',
+  input: 'out/mpc.default.js',
   output: [{
-    file: 'dist/browser/mpc.umd.min.js',
+    file: 'dist/mpc.umd.min.js',
     format: 'umd',
     name: 'MPC',
     sourcemap: true
