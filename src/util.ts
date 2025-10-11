@@ -1,9 +1,5 @@
 import type { MPDError, MPDInitialResponse, MPDResponse } from "./protocol.js";
 
-export function stringStartsWith(str: string, prefix: string): boolean {
-  return ((str.length >= prefix.length) && (str.substring(0, prefix.length) == prefix));
-}
-
 export function getOptionalNumber(valueMap: Map<string, string>, key: string): number | undefined {
   return valueMap.has(key) ? Number(valueMap.get(key)) : undefined;
 }

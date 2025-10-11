@@ -42,8 +42,9 @@ export const createConnectionCommands = (protocol: MPDProtocol) => ({
    * which will be omitted from responses to this client.
    * That is a good idea, because it makes responses smaller.
    */
-  tagTypes(): Promise<string[]> {
-    return tagTypes(protocol);
+  async tagTypes(): Promise<string[]> {
+    const { lines } = await protocol.sendCommand('tagtypes');
+    return lines.map(line => line.substring(9));
   },
 
   /**
@@ -82,8 +83,3 @@ export const createConnectionCommands = (protocol: MPDProtocol) => ({
     await protocol.sendCommand('tagtypes all');
   },
 });
-
-export async function tagTypes(protocol: MPDProtocol): Promise<string[]> {
-  const { lines } = await protocol.sendCommand('tagtypes');
-  return lines.map(line => line.substring(9));
-}

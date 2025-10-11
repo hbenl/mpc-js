@@ -1,7 +1,6 @@
 import { MPDProtocol } from '../protocol.js';
 import { Decoder } from '../objects/decoder.js';
-import { parse, stringStartsWith } from '../util.js';
-import { tagTypes } from './connection.js';
+import { parse } from '../util.js';
 
 export interface ReflectionCommands extends ReturnType<typeof createReflectionCommands>{}
 
@@ -35,14 +34,6 @@ export const createReflectionCommands = (protocol: MPDProtocol) => ({
   },
 
   /**
-   * This method is identical to the method by the same name in the ConnectionCommands class.
-   * It is only provided here for backward compatibility.
-   */
-  tagTypes(): Promise<string[]> {
-    return tagTypes(protocol);
-  },
-
-  /**
    * Gets a list of available URL handlers.
    */
   async urlHandlers(): Promise<string[]> {
@@ -58,16 +49,16 @@ export const createReflectionCommands = (protocol: MPDProtocol) => ({
     const decoders: Decoder[] = [];
     let currentDecoder: Decoder;
     lines.forEach(line => {
-      if (stringStartsWith(line, 'plugin')) {
+      if (line.startsWith('plugin')) {
         if (currentDecoder) {
           decoders.push(currentDecoder);
         }
         currentDecoder = new Decoder(line.substring(8));
       }
-      else if (stringStartsWith(line, 'suffix')) {
+      else if (line.startsWith('suffix')) {
         currentDecoder.suffixes.push(line.substr(8));
       }
-      else if (stringStartsWith(line, 'mime_type')) {
+      else if (line.startsWith('mime_type')) {
         currentDecoder.mimeTypes.push(line.substr(11));
       }
     });
