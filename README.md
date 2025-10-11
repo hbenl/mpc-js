@@ -37,7 +37,7 @@ If you use a bundler, you can `import { MPC } from 'mpc-js'` just as in node.
 Otherwise you can copy one of the bundles that can be used directly in the browser into your web folder:
 
 #### ESM
-Import [`dist/browser/mpc.min.mjs`](https://unpkg.com/mpc-js@latest/dist/browser/mpc.min.mjs) in your module:
+Import [`dist/mpc.min.mjs`](https://unpkg.com/mpc-js@latest/dist/mpc.min.mjs) in your module:
 ```
 <script type="module">
   import { MPC } from './mpc.min.mjs';
@@ -48,7 +48,7 @@ Import [`dist/browser/mpc.min.mjs`](https://unpkg.com/mpc-js@latest/dist/browser
 ```
 
 #### UMD
-Use [`dist/browser/mpc.umd.min.js`](https://unpkg.com/mpc-js@latest/dist/browser/mpc.umd.min.js), which defines the global variable `MPC`:
+Use [`dist/mpc.umd.min.js`](https://unpkg.com/mpc-js@latest/dist/mpc.umd.min.js), which defines the global variable `MPC`:
 ```
 <script src="./mpc.umd.min.js"></script>
 <script>
@@ -61,7 +61,7 @@ Use [`dist/browser/mpc.umd.min.js`](https://unpkg.com/mpc-js@latest/dist/browser
 
 ### API
 
-[Typedoc](https://typedoc.org/)-generated API documentation is available [here](https://hbenl.github.io/mpc-js/typedoc/classes/node.MPC.html).
+[Typedoc](https://typedoc.org/)-generated API documentation is available [here](https://hbenl.github.io/mpc-js/typedoc/classes/MPC.html).
 
 ### Events
 
