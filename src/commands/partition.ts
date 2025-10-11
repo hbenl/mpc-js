@@ -1,4 +1,5 @@
 import { MPDProtocol } from '../protocol.js';
+import { parse } from '../util.js';
 
 export interface PartitionCommands extends ReturnType<typeof createPartitionCommands>{}
 
@@ -16,7 +17,7 @@ export const createPartitionCommands = (protocol: MPDProtocol) => ({
    */
   async listPartitions(): Promise<string[]> {
     const { lines } = await protocol.sendCommand('listpartitions');
-    return protocol.parse(lines, ['partition'], 
+    return parse(lines, ['partition'], 
       valueMap => valueMap.get('partition')!);
   },
 

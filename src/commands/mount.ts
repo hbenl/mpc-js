@@ -1,5 +1,6 @@
 import { MPDProtocol } from '../protocol.js';
 import { Mount, Neighbor } from '../objects/mount.js';
+import { parse } from '../util.js';
 
 export interface MountCommands extends ReturnType<typeof createMountCommands>{}
 
@@ -26,7 +27,7 @@ export const createMountCommands = (protocol: MPDProtocol) => ({
    */
   async listMounts(): Promise<Mount[]> {
     const { lines } = await protocol.sendCommand('listmounts');
-    return protocol.parse(lines, ['mount'], valueMap => new Mount(valueMap));
+    return parse(lines, ['mount'], valueMap => new Mount(valueMap));
   },
 
   /**
@@ -35,6 +36,6 @@ export const createMountCommands = (protocol: MPDProtocol) => ({
    */
   async listNeighbors(): Promise<Neighbor[]> {
     const { lines } = await protocol.sendCommand('listneighbors');
-    return protocol.parse(lines, ['neighbor'], valueMap => new Neighbor(valueMap));
+    return parse(lines, ['neighbor'], valueMap => new Neighbor(valueMap));
   },
 });

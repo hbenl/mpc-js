@@ -1,4 +1,5 @@
 import { MPDProtocol } from '../protocol.js';
+import { parse } from '../util.js';
 
 export interface StickerCommands extends ReturnType<typeof createStickerCommands>{}
 
@@ -67,7 +68,7 @@ export const createStickerCommands = (protocol: MPDProtocol) => ({
       cmd += ` ${operator} "${value}"`;
     }
     const { lines } = await protocol.sendCommand(cmd);
-    const fileAndStickers = protocol.parse(lines, ['file'], valueMap => valueMap);
+    const fileAndStickers = parse(lines, ['file'], valueMap => valueMap);
     const stickerMap = new Map<string, string>();
     fileAndStickers.forEach(fileAndSticker => {
       const fileValue = fileAndSticker.get('file');

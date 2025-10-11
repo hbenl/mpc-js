@@ -1,5 +1,6 @@
 import { MPDProtocol } from '../protocol.js';
 import { PlaylistItem, SongIdAndPosition } from '../objects/playlists.js';
+import { parse } from '../util.js';
 
 export interface CurrentPlaylistCommands extends ReturnType<typeof createCurrentPlaylistCommands>{}
 
@@ -91,7 +92,7 @@ export const createCurrentPlaylistCommands = (protocol: MPDProtocol) => ({
   async playlistFind(tag: string, needle: string): Promise<PlaylistItem[]> {
     const cmd = `playlistfind "${tag}" "${needle}"`;
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
+    return parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   },
 
   /**
@@ -100,7 +101,7 @@ export const createCurrentPlaylistCommands = (protocol: MPDProtocol) => ({
   async playlistSearch(tag: string, needle: string): Promise<PlaylistItem[]> {
     const cmd = `playlistsearch "${tag}" "${needle}"`;
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
+    return parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   },
 
   /**
@@ -109,7 +110,7 @@ export const createCurrentPlaylistCommands = (protocol: MPDProtocol) => ({
   async playlistId(songId: number): Promise<PlaylistItem> {
     const cmd = `playlistid ${songId}`;
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, [], valueMap => new PlaylistItem(valueMap))[0]!;
+    return parse(lines, [], valueMap => new PlaylistItem(valueMap))[0]!;
   },
 
   /**
@@ -121,7 +122,7 @@ export const createCurrentPlaylistCommands = (protocol: MPDProtocol) => ({
       cmd += ` ${position}`;
     }
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
+    return parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   },
 
   /**
@@ -133,7 +134,7 @@ export const createCurrentPlaylistCommands = (protocol: MPDProtocol) => ({
       cmd += `${end}`;
     }
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
+    return parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   },
 
   /**
@@ -150,7 +151,7 @@ export const createCurrentPlaylistCommands = (protocol: MPDProtocol) => ({
       }
     }
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
+    return parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   },
 
   /**
@@ -168,7 +169,7 @@ export const createCurrentPlaylistCommands = (protocol: MPDProtocol) => ({
       }
     }
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['cpos'], valueMap => new SongIdAndPosition(valueMap));
+    return parse(lines, ['cpos'], valueMap => new SongIdAndPosition(valueMap));
   },
 
   /**

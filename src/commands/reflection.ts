@@ -1,6 +1,6 @@
 import { MPDProtocol } from '../protocol.js';
 import { Decoder } from '../objects/decoder.js';
-import { stringStartsWith } from '../util.js';
+import { parse, stringStartsWith } from '../util.js';
 import { tagTypes } from './connection.js';
 
 export interface ReflectionCommands extends ReturnType<typeof createReflectionCommands>{}
@@ -15,7 +15,7 @@ export const createReflectionCommands = (protocol: MPDProtocol) => ({
    */
   async config(): Promise<Map<string, string>> {
     const { lines } = await protocol.sendCommand('config');
-    return protocol.parse(lines, [], valueMap => valueMap)[0]!;
+    return parse(lines, [], valueMap => valueMap)[0]!;
   },
 
   /**

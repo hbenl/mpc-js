@@ -1,5 +1,6 @@
 import { MPDProtocol } from '../protocol.js';
 import { StoredPlaylist, PlaylistItem } from '../objects/playlists.js';
+import { parse } from '../util.js';
 
 export interface StoredPlaylistsCommands extends ReturnType<typeof createStoredPlaylistsCommands>{}
 
@@ -12,7 +13,7 @@ export const createStoredPlaylistsCommands = (protocol: MPDProtocol) => ({
    */
   async listPlaylists(): Promise<StoredPlaylist[]> {
     const { lines } = await protocol.sendCommand('listplaylists');
-    return protocol.parse(lines, ['playlist'], valueMap => new StoredPlaylist(valueMap));
+    return parse(lines, ['playlist'], valueMap => new StoredPlaylist(valueMap));
   },
 
   /**
@@ -30,7 +31,7 @@ export const createStoredPlaylistsCommands = (protocol: MPDProtocol) => ({
   async listPlaylistInfo(name: string): Promise<PlaylistItem[]> {
     const cmd = `listplaylistinfo "${name}"`;
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
+    return parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
   },
 
   /**

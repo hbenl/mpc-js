@@ -1,5 +1,6 @@
 import { MPDProtocol } from '../protocol.js';
 import { DirectoryEntry, File, GroupedTagList, Song, Playlist, Directory, SongCount, GroupedSongCount } from '../objects/database.js';
+import { parse } from '../util.js';
 
 export interface DatabaseCommands extends ReturnType<typeof createDatabaseCommands>{}
 
@@ -18,7 +19,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
     let cmd = 'count';
     cmd = addFilter(cmd, filter);
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, [], valueMap => new SongCount(valueMap))[0]!;
+    return parse(lines, [], valueMap => new SongCount(valueMap))[0]!;
   },
 
   /**
@@ -36,7 +37,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
     cmd = addFilter(cmd, filter);
     cmd += ` group ${groupingTag}`;
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, [groupingTag], valueMap => new GroupedSongCount(valueMap, groupingTag));
+    return parse(lines, [groupingTag], valueMap => new GroupedSongCount(valueMap, groupingTag));
   },
 
   /**
@@ -66,7 +67,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file'], valueMap => <Song>DirectoryEntry.fromValueMap(valueMap, true));
+    return parse(lines, ['file'], valueMap => <Song>DirectoryEntry.fromValueMap(valueMap, true));
   },
 
   /**
@@ -91,7 +92,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file'], valueMap => <Song>DirectoryEntry.fromValueMap(valueMap, true));
+    return parse(lines, ['file'], valueMap => <Song>DirectoryEntry.fromValueMap(valueMap, true));
   },
 
   /**
@@ -133,7 +134,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
       cmd += ` "${uri}"`;
     }
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file', 'directory'], valueMap => <File | Directory>DirectoryEntry.fromValueMap(valueMap, false));
+    return parse(lines, ['file', 'directory'], valueMap => <File | Directory>DirectoryEntry.fromValueMap(valueMap, false));
   },
 
   /**
@@ -149,7 +150,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
       cmd += ` "${uri}"`;
     }
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file', 'playlist', 'directory'], valueMap => <Song | Playlist | Directory>DirectoryEntry.fromValueMap(valueMap, true));
+    return parse(lines, ['file', 'playlist', 'directory'], valueMap => <Song | Playlist | Directory>DirectoryEntry.fromValueMap(valueMap, true));
   },
 
   /**
@@ -177,7 +178,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
       cmd += ` "${uri}"`;
     }
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, ['file', 'playlist', 'directory'], valueMap => <Song | Playlist | Directory>DirectoryEntry.fromValueMap(valueMap, true));
+    return parse(lines, ['file', 'playlist', 'directory'], valueMap => <Song | Playlist | Directory>DirectoryEntry.fromValueMap(valueMap, true));
   },
 
   /**
@@ -249,7 +250,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
   async readComments(uri: string): Promise<Map<string, string>> {
     const cmd = `readcomments "${uri}"`;
     const { lines } = await protocol.sendCommand(cmd);
-    return protocol.parse(lines, [], valueMap => valueMap)[0]!;
+    return parse(lines, [], valueMap => valueMap)[0]!;
   },
 
   /**

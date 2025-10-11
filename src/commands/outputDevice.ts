@@ -1,5 +1,6 @@
 import { MPDProtocol } from '../protocol.js';
 import { OutputDevice } from '../objects/outputDevice.js';
+import { parse } from '../util.js';
 
 export interface OutputDeviceCommands extends ReturnType<typeof createOutputDeviceCommands>{}
 
@@ -10,7 +11,7 @@ export const createOutputDeviceCommands = (protocol: MPDProtocol) => ({
    */
   async outputs(): Promise<OutputDevice[]> {
     const { lines } = await protocol.sendCommand('outputs');
-    return protocol.parse(lines, ['outputid'], valueMap => new OutputDevice(valueMap));
+    return parse(lines, ['outputid'], valueMap => new OutputDevice(valueMap));
   },
 
   /**
