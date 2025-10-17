@@ -5,10 +5,26 @@ export interface PlaybackOptionsCommands extends ReturnType<typeof createPlaybac
 export const createPlaybackOptionsCommands = (protocol: MPDProtocol) => ({
 
   /**
+   * Read the volume. The result is in the range 0-100. Returns undefined if there is no mixer.
+   */
+  async getVolume(): Promise<number | undefined> {
+    const { lines } = await protocol.sendCommand('getvol');
+    return lines[0] ? Number(lines[0].substring(8)) : undefined;
+  },
+
+  /**
    * Sets volume, the range of volume is 0-100.
    */
   async setVolume(volume: number): Promise<void> {
     const cmd = `setvol ${volume}`;
+    await protocol.sendCommand(cmd);
+  },
+
+  /**
+   * Changes volume by the given amount.
+   */
+  async changeVolume(change: number): Promise<void> {
+    const cmd = `volume ${change}`;
     await protocol.sendCommand(cmd);
   },
 
@@ -17,6 +33,11 @@ export const createPlaybackOptionsCommands = (protocol: MPDProtocol) => ({
     await protocol.sendCommand(cmd);
   },
 
+  /**
+   * Sets repeat state.
+   * If enabled, MPD keeps repeating the whole queue (single mode disabled) or the current song (single mode enabled).
+   * If random mode is also enabled, the playback order will be shuffled each time the queue gets repeated.
+   */
   async setRepeat(repeat: boolean): Promise<void> {
     const cmd = `repeat ${repeat ? 1 : 0}`;
     await protocol.sendCommand(cmd);
