@@ -24,6 +24,24 @@ export const createStickerCommands = (protocol: MPDProtocol) => ({
   },
 
   /**
+   * Adds a sticker value to the specified object. If a sticker item
+   * with that name already exists, it is incremented by supplied value.
+   */
+  async incrementSticker(type: string, uri: string, name: string, value: number): Promise<void> {
+    const cmd = `sticker inc ${type} "${uri}" "${name}" ${value}`;
+    await protocol.sendCommand(cmd);
+  },
+
+  /**
+   * Adds a sticker value to the specified object. If a sticker item
+   * with that name already exists, it is decremented by supplied value.
+   */
+  async decrementSticker(type: string, uri: string, name: string, value: number): Promise<void> {
+    const cmd = `sticker dec ${type} "${uri}" "${name}" ${value}`;
+    await protocol.sendCommand(cmd);
+  },
+
+  /**
    * Deletes a sticker value from the specified object.
    * If you do not specify a sticker name, all sticker values are deleted.
    */
@@ -80,4 +98,32 @@ export const createStickerCommands = (protocol: MPDProtocol) => ({
     });
     return stickerMap;
   },
+
+  /**
+   * Gets a list of uniq sticker names.
+   */
+  async getStickerNames(): Promise<string[]> {
+    const { lines } = await protocol.sendCommand('stickernames');
+    return lines.map(line => line.substring(6));
+  },
+
+  /**
+   * Gets a list of available sticker types.
+   */
+  async getStickerTypes(): Promise<string[]> {
+    const { lines } = await protocol.sendCommand('stickertypes');
+    return lines.map(line => line.substring(13));
+  },
+
+  /**
+   * Gets a list of uniq sticker names and their types.
+   */
+  async getStickerNamesTypes(type?: string): Promise<[string, string][]> {
+    let cmd = 'stickernamestypes';
+    if (type) {
+      cmd += ` ${type}`;
+    }
+    const { lines } = await protocol.sendCommand(cmd);
+    return parse(lines, ['name'], valueMap => [valueMap.get('name')!, valueMap.get('type')!]);
+  }
 });
