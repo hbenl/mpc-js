@@ -12,7 +12,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
    * [here](https://www.musicpd.org/doc/html/protocol.html#filter-syntax)
    * or an array of tuples containing a tag and the value that it should match.
    * Note that tags are case sensitive and that the MPD documentation incorrectly lists all
-   * tags as lower-case. Use `mpc.reflection.tagTypes()` to get the correct list of tags
+   * tags as lower-case. Use `mpc.connection.tagTypes()` to get the correct list of tags
    * supported by MPD.
    */
   async count(filter: string | [string, string][] = []): Promise<SongCount> {
@@ -29,7 +29,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
    * or an array of tuples containing a tag and the value that it should match.
    * The results are grouped by tag `groupingTag` (e.g. 'Artist', 'Album', 'Date', 'Genre')
    * Note that tags are case sensitive and that the MPD documentation incorrectly lists all
-   * tags as lower-case. Use `mpc.reflection.tagTypes()` to get the correct list of tags
+   * tags as lower-case. Use `mpc.connection.tagTypes()` to get the correct list of tags
    * supported by MPD.
    */
   async countGrouped(groupingTag: string, filter: string | [string, string][] = []): Promise<GroupedSongCount[]> {
@@ -58,7 +58,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
    * * 'base' restricts the search to songs in the given directory (also relative to the music directory)
    * * 'modified-since' compares the file's time stamp with the given value (ISO 8601 or UNIX time stamp)
    * Note that tags are case sensitive and that the MPD documentation incorrectly lists all
-   * tags as lower-case. Use `mpc.reflection.tagTypes()` to get the correct list of tags
+   * tags as lower-case. Use `mpc.connection.tagTypes()` to get the correct list of tags
    * supported by MPD.
    */
   async find(filter: string | [string, string][], start?: number, end?: number, sort?: string): Promise<Song[]> {
@@ -185,7 +185,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
    * Lists unique tags values of the specified type. `type` can be any tag supported by MPD
    * or 'file', but 'file' is deprecated. `filter` specifies a filter like the one in `find()`.
    * Note that tags are case sensitive and that the MPD documentation incorrectly lists all
-   * tags as lower-case. Use `mpc.reflection.tagTypes()` to get the correct list of tags
+   * tags as lower-case. Use `mpc.connection.tagTypes()` to get the correct list of tags
    * supported by MPD.
    */
   async list(type: string, filter: string | [string, string][] = []): Promise<string[]> {
@@ -200,7 +200,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
    * or 'file', but 'file' is deprecated. `filter` specifies a filter like the one in `find()`.
    * `groupingTags` are used to group the results by one or more tags.
    * Note that tags are case sensitive and that the MPD documentation incorrectly lists all
-   * tags as lower-case. Use `mpc.reflection.tagTypes()` to get the correct list of tags
+   * tags as lower-case. Use `mpc.connection.tagTypes()` to get the correct list of tags
    * supported by MPD.
    */
   async listGrouped(type: string, groupingTags: [string, ...string[]], filter: string | [string, string][] = []): Promise<GroupedTagList[]> {
