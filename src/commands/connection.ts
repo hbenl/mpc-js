@@ -36,7 +36,17 @@ export const createConnectionCommands = (protocol: MPDProtocol) => ({
   },
 
   /**
-   * Shows a list of available tag types. It is an intersection of the
+   * Set the maximum binary response size for the current connection to
+   * the specified number of bytes.
+   * A bigger value means less overhead for transmitting large entities,
+   * but it also means that the connection is blocked for a longer time.
+   */
+  async setBinaryLimit(size: number): Promise<void> {
+    await protocol.sendCommand(`binarylimit ${size}`);
+  },
+
+  /**
+   * Gets a list of available tag types. It is an intersection of the
    * metadata_to_use setting and this client's tag mask.
    * About the tag mask: each client can decide to disable any number of tag types,
    * which will be omitted from responses to this client.
@@ -44,6 +54,14 @@ export const createConnectionCommands = (protocol: MPDProtocol) => ({
    */
   async tagTypes(): Promise<string[]> {
     const { lines } = await protocol.sendCommand('tagtypes');
+    return lines.map(line => line.substring(9));
+  },
+
+  /**
+   * Get the list of tag types configured by the `metadata_to_use` setting.
+   */
+  async getAvailableTagTypes(): Promise<string[]> {
+    const { lines } = await protocol.sendCommand('tagtypes available');
     return lines.map(line => line.substring(9));
   },
 
@@ -81,5 +99,66 @@ export const createConnectionCommands = (protocol: MPDProtocol) => ({
    */
   async allTagTypes(): Promise<void> {
     await protocol.sendCommand('tagtypes all');
+  },
+
+  /**
+   * Set the list of enabled tag types for this client. These will no longer
+   * be hidden from responses to this client.
+   */
+  async setEnabledTagTypes(names: string[]): Promise<void> {
+    let cmd = 'tagtypes reset';
+    if (names.length > 0) {
+      cmd += ` ${names.join(' ')}`;
+    }
+    await protocol.sendCommand(cmd);
+  },
+
+  /**
+   * Get a list of enabled protocol features. Available features:
+   * - `hide_playlists_in_root`: disables the listing of stored playlists for `listInfo()`.
+   */
+  async getEnabledProtocolFeatures(): Promise<string[]> {
+    const { lines } = await protocol.sendCommand('protocol');
+    return lines.map(line => line.substring(9));
+  },
+
+  /**
+   * Lists all available protocol features.
+   */
+  async getAvailableProtocolFeatures(): Promise<string[]> {
+    const { lines } = await protocol.sendCommand('protocol available');
+    return lines.map(line => line.substring(9));
+  },
+
+  /**
+   * Enables one or more features.
+   */
+  async enableProtocolFeatures(features: string[]): Promise<void> {
+    if (features.length < 1) return;
+    const cmd = `protocol enable ${features.join(' ')}`;
+    await protocol.sendCommand(cmd);
+  },
+
+  /**
+   * Disables one or more features.
+   */
+  async disableProtocolFeatures(features: string[]): Promise<void> {
+    if (features.length < 1) return;
+    const cmd = `protocol disable ${features.join(' ')}`;
+    await protocol.sendCommand(cmd);
+  },
+
+  /**
+   * Enables all protocol features.
+   */
+  async enableAllProtocolFeatures(): Promise<void> {
+    await protocol.sendCommand('protocol all');
+  },
+
+  /**
+   * Disables all protocol features.
+   */
+  async disableAllProtocolFeatures(): Promise<void> {
+    await protocol.sendCommand('protocol clear');
   },
 });
