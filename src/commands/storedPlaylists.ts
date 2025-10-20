@@ -1,6 +1,8 @@
 import { MPDProtocol } from '../protocol.js';
+import { SongCount } from '../objects/database.js';
 import { StoredPlaylist, PlaylistItem } from '../objects/playlists.js';
 import { parse } from '../util.js';
+import { addFilter } from './database.js';
 
 export interface StoredPlaylistsCommands extends ReturnType<typeof createStoredPlaylistsCommands>{}
 
@@ -32,6 +34,25 @@ export const createStoredPlaylistsCommands = (protocol: MPDProtocol) => ({
     const cmd = `listplaylistinfo "${name}"`;
     const { lines } = await protocol.sendCommand(cmd);
     return parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
+  },
+
+  /**
+   * Search the playlist for songs matching the given filter. Playlist plugins are supported.
+   */
+  async searchPlaylist(name: string, filter: string | [string, string][]): Promise<PlaylistItem[]> {
+    let cmd = `searchplaylist "${name}"`;
+    cmd = addFilter(cmd, filter);
+    const { lines } = await protocol.sendCommand(cmd);
+    return parse(lines, ['file'], valueMap => new PlaylistItem(valueMap));
+  },
+
+  /**
+   * Count the number of songs and their total playtime (seconds) in the playlist.
+   */
+  async playlistLength(name: string): Promise<SongCount> {
+    const cmd = `playlistlength "${name}"`;
+    const { lines } = await protocol.sendCommand(cmd);
+    return parse(lines, [], valueMap => new SongCount(valueMap))[0]!;
   },
 
   /**

@@ -322,7 +322,7 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
   },
 });
 
-function addFilter(cmd: string, filter: string | [string, string][]): string {
+export function addFilter(cmd: string, filter: string | [string, string][]): string {
   if (typeof filter === 'string') {
     cmd += ` "${filter.replace(/\\/g, '\\\\').replace(/\"/g, '\\\"')}"`;
   } else {
