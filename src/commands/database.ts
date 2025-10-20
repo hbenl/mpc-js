@@ -1,6 +1,6 @@
 import { MPDProtocol } from '../protocol.js';
-import { DirectoryEntry, File, GroupedTagList, Song, Playlist, Directory, SongCount, GroupedSongCount } from '../objects/database.js';
-import { parse } from '../util.js';
+import { DirectoryEntry, File, GroupedTagList, Song, Playlist, Directory, SongCount, GroupedSongCount, Picture } from '../objects/database.js';
+import { concatUint8Arrays, parse } from '../util.js';
 
 export interface DatabaseCommands extends ReturnType<typeof createDatabaseCommands>{}
 
@@ -34,6 +34,29 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
    */
   async countGrouped(groupingTag: string, filter: string | [string, string][] = []): Promise<GroupedSongCount[]> {
     let cmd = 'count';
+    cmd = addFilter(cmd, filter);
+    cmd += ` group ${groupingTag}`;
+    const { lines } = await protocol.sendCommand(cmd);
+    return parse(lines, [groupingTag], valueMap => new GroupedSongCount(valueMap, groupingTag));
+  },
+
+  /**
+   * Count the number of songs and their total playtime in the database matching the given filter.
+   * Parameters have the same meaning as for `count()` except the search is not case sensitive.
+   */
+  async searchCount(filter: string | [string, string][] = []): Promise<SongCount> {
+    let cmd = 'searchcount';
+    cmd = addFilter(cmd, filter);
+    const { lines } = await protocol.sendCommand(cmd);
+    return parse(lines, [], valueMap => new SongCount(valueMap))[0]!;
+  },
+
+  /**
+   * Count the number of songs and their total playtime in the database matching the given filter.
+   * Parameters have the same meaning as for `countGrouped()` except the search is not case sensitive.
+   */
+  async searchCountGrouped(groupingTag: string, filter: string | [string, string][] = []): Promise<GroupedSongCount[]> {
+    let cmd = 'searchcount';
     cmd = addFilter(cmd, filter);
     cmd += ` group ${groupingTag}`;
     const { lines } = await protocol.sendCommand(cmd);
@@ -254,6 +277,24 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
   },
 
   /**
+   * Calculate the song’s audio fingerprint. This command is only available
+   * if MPD was built with `libchromaprint` (`-Dchromaprint=enabled`).
+   */
+  async getFingerprint(uri: string): Promise<string> {
+    const cmd = `getfingerprint "${uri}"`;
+    const { lines } = await protocol.sendCommand(cmd);
+    return lines[0]!.substring(13);
+  },
+
+  getAlbumArt(uri: string): Promise<Picture | undefined> {
+    return downloadPicture(protocol, `albumart "${uri}"`);
+  },
+
+  getPicture(uri: string): Promise<Picture | undefined> {
+    return downloadPicture(protocol, `readpicture "${uri}"`);
+  },
+
+  /**
    * Updates the music database: find new files, remove deleted files, update modified files.
    * `uri` is a particular directory or song/file to update. If you do not specify it, everything
    * is updated. Returns a positive number identifying the update job. You can read the current
@@ -304,4 +345,19 @@ function addWindow(cmd: string, start?: number, end?: number): string {
     cmd += ` window ${start}:${(end !== undefined) ? end : ''}`;
   }
   return cmd;
+}
+
+async function downloadPicture(protocol: MPDProtocol, cmd: string): Promise<Picture | undefined> {
+  const { lines, binary } = await protocol.sendCommand(`${cmd} 0`);
+  const values = parse(lines, [], valueMap => valueMap)[0];
+  if (values && binary) {
+    const length = +values.get('size')!;
+    let buffer = new Uint8Array(binary);
+    while (buffer.byteLength < length) {
+      const { binary } = await protocol.sendCommand(`${cmd} ${buffer.byteLength}`);
+      buffer = concatUint8Arrays(buffer, new Uint8Array(binary!)) as Uint8Array<ArrayBuffer>;
+    }
+    return new Picture(buffer.buffer, values.get('type')!);
+  }
+  return undefined;
 }

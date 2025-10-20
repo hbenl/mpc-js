@@ -279,3 +279,10 @@ export class GroupedTagList {
     public tags: string[]
   ) {}
 }
+
+export class Picture {
+  constructor(
+    public data: ArrayBuffer,
+    public type: string
+  ) {}
+}

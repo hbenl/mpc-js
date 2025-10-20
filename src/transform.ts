@@ -1,4 +1,5 @@
 import type { MPDError, MPDInitialResponse, MPDResponse } from "./protocol.js";
+import { concatUint8Arrays } from "./util.js";
 
 export function decodeLines() {
 
@@ -102,11 +103,4 @@ export function groupResponseLines() {
       }
     }
   });
-}
-
-function concatUint8Arrays(src1: Uint8Array, src2: Uint8Array): Uint8Array {
-  const result = new Uint8Array(src1.length + src2.length);
-  result.set(src1, 0);
-  result.set(src2, src1.length);
-  return result;
 }
