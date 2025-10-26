@@ -1,6 +1,7 @@
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import sourcemaps from 'rollup-plugin-sourcemaps';
+import cleanup from 'rollup-plugin-cleanup';
 import terser from '@rollup/plugin-terser';
 import dts from 'rollup-plugin-dts';
 
@@ -20,7 +21,10 @@ export default [{
     sourcemapExcludeSources: true
   }],
   external: [ 'net', 'eventemitter3' ],
-  plugins: [ sourcemaps() ]
+  plugins: [
+    sourcemaps(),
+    cleanup(),
+  ]
 }, {
   input: 'out/mpc.js',
   output: { file: 'dist/mpc.d.ts' },
