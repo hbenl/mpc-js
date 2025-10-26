@@ -67,6 +67,11 @@ export class Song extends DirectoryEntry {
   title?: string;
 
   /**
+   * same as title, but for sorting
+   */
+  titleSort?: string;
+
+  /**
    * a name for this song. This is not the song title. The exact meaning of this tag is not well-defined.
    * It is often used by badly configured internet radio stations with broken tags to squeeze both
    * the artist name and the song title in one tag
@@ -89,9 +94,19 @@ export class Song extends DirectoryEntry {
   composer?: string;
 
   /**
+   * same as composer, but for sorting
+   */
+  composerSort?: string;
+
+  /**
    * the artist who performed the song
    */
   performer?: string;
+
+  /**
+   * the conductor who conducted the song
+   */
+  conductor?: string;
 
   /**
    * the album name
@@ -134,12 +149,57 @@ export class Song extends DirectoryEntry {
    */
   date?: string;
 
+  /**
+   * the song’s original release date
+   */
   originalDate?: string;
 
   /**
    * the music genre
    */
   genre?: string;
+
+  /**
+   * the mood of the audio with a few keywords
+   */
+  mood?: string;
+
+  /**
+   * “a work is a distinct intellectual or artistic creation,
+   * which can be expressed in the form of one or more audio recordings”
+   */
+  work?: string;
+
+  /**
+   * the ensemble performing this song, e.g. “Wiener Philharmoniker”
+   */
+  ensemble?: string;
+
+  /**
+   * name of the movement, e.g. “Andante con moto”
+   */
+  movement?: string;
+
+  /**
+   * movement number, e.g. “2” or “II”
+   */
+  movementNumber?: string;
+
+  /**
+   * If this is true players supporting this tag will display the work,
+   * movement, and movementnumber` instead of the track title
+   */
+  showMovement?: boolean;
+
+  /**
+   * location of the recording, e.g. “Royal Albert Hall”
+   */
+  location?: string;
+
+  /**
+   * “used if the sound belongs to a larger category of sounds/music”
+   */
+  grouping?: string;
 
   /**
    * a human-readable comment about this song. The exact meaning of this tag is not well-defined
@@ -165,6 +225,11 @@ export class Song extends DirectoryEntry {
    * the track id in the MusicBrainz database
    */
   musicBrainzTrackId?: string;
+
+  /**
+   * the release group id in the MusicBrainz database
+   */
+  musicBrainzReleaseGroupId?: string;
 
   /**
    * the release track id in the MusicBrainz database
@@ -195,11 +260,14 @@ export class Song extends DirectoryEntry {
   constructor(valueMap: Map<string, string>) {
     super(valueMap, 'file', 'song');
     this.title = valueMap.get('Title');
+    this.titleSort = valueMap.get('TitleSort');
     this.name =  valueMap.get('Name');
     this.artist = valueMap.get('Artist');
     this.artistSort = valueMap.get('ArtistSort');
     this.composer = valueMap.get('Composer');
+    this.composerSort = valueMap.get('ComposerSort');
     this.performer = valueMap.get('Performer');
+    this.conductor = valueMap.get('Conductor');
     this.album = valueMap.get('Album');
     this.albumSort = valueMap.get('AlbumSort');
     this.albumArtist = valueMap.get('AlbumArtist');
@@ -210,11 +278,20 @@ export class Song extends DirectoryEntry {
     this.date = valueMap.get('Date');
     this.originalDate = valueMap.get('OriginalDate');
     this.genre = valueMap.get('Genre');
+    this.mood = valueMap.get('Mood');
+    this.work = valueMap.get('Work');
+    this.ensemble = valueMap.get('Ensemble');
+    this.movement = valueMap.get('Movement');
+    this.movementNumber = valueMap.get('MovementNumber');
+    this.showMovement = valueMap.get('ShowMovement') === '1';
+    this.location = valueMap.get('Location');
+    this.grouping = valueMap.get('Grouping');
     this.comment = valueMap.get('Comment');
     this.musicBrainzArtistId = valueMap.get('MUSICBRAINZ_ARTISTID');
     this.musicBrainzAlbumId = valueMap.get('MUSICBRAINZ_ALBUMID');
     this.musicBrainzAlbumArtistId = valueMap.get('MUSICBRAINZ_ALBUMARTISTID');
     this.musicBrainzTrackId = valueMap.get('MUSICBRAINZ_TRACKID');
+    this.musicBrainzReleaseGroupId = valueMap.get('MUSICBRAINZ_RELEASEGROUPID');
     this.musicBrainzReleaseTrackId = valueMap.get('MUSICBRAINZ_RELEASETRACKID');
     this.musicBrainzWorkId = valueMap.get('MUSICBRAINZ_WORKID');
     const durationString = valueMap.get('duration') || valueMap.get('Time');
