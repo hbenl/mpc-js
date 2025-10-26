@@ -8,15 +8,20 @@ export const createCurrentPlaylistCommands = (protocol: MPDProtocol) => ({
 
   /**
    * Adds the file or directory `uri` to the playlist (directories add recursively).
+   * The position parameter is the same as in `addId()`.
    */
-  async add(uri: string): Promise<void> {
-    const cmd = `add "${uri}"`;
+  async add(uri: string, position?: number): Promise<void> {
+    let cmd = `add "${uri}"`;
+    if (position !== undefined) {
+      cmd += ` ${position}`;
+    }
     await protocol.sendCommand(cmd);
   },
 
   /**
    * Adds a song to the playlist (non-recursive) and returns the song id.
    * `uri` is always a single file or URL.
+   * If the `position` parameter is given, then the song is inserted at the specified position.
    */
   async addId(uri: string, position?: number): Promise<number> {
     let cmd = `addid "${uri}"`;

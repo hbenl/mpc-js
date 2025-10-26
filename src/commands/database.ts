@@ -95,13 +95,14 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
 
   /**
    * Finds songs in the database that match exactly and adds them to the current playlist.
-   * Parameters have the same meaning as for `find()`.
+   * Parameters have the same meaning as for `find()` and `searchAdd()`.
    */
-  async findAdd(filter: string | [string, string][], start?: number, end?: number, sort?: string): Promise<void> {
+  async findAdd(filter: string | [string, string][], start?: number, end?: number, sort?: string, position?: number): Promise<void> {
     let cmd = 'findadd';
     cmd = addFilter(cmd, filter);
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
+    cmd = addPosition(cmd, position);
     await protocol.sendCommand(cmd);
   },
 
@@ -120,28 +121,30 @@ export const createDatabaseCommands = (protocol: MPDProtocol) => ({
 
   /**
    * Searches for any song that matches and adds them to the current playlist.
-   * Parameters have the same meaning as for `find()`, except that the search is a
-   * case insensitive substring search.
+   * Parameters have the same meaning as for `search()`.
+   * The `position` parameter specifies where the songs will be inserted.
    */
-  async searchAdd(filter: string | [string, string][], start?: number, end?: number, sort?: string): Promise<void> {
+  async searchAdd(filter: string | [string, string][], start?: number, end?: number, sort?: string, position?: number): Promise<void> {
     let cmd = 'searchadd';
     cmd = addFilter(cmd, filter);
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
+    cmd = addPosition(cmd, position);
     await protocol.sendCommand(cmd);
   },
 
   /**
    * Searches for any song that matches and adds them to the playlist named `name`.
    * If a playlist by that name doesn't exist it is created.
-   * Parameters have the same meaning as for `find()`, except that the search is a
-   * case insensitive substring search.
+   * Parameters have the same meaning as for `search()`.
+   * The `position` parameter specifies where the songs will be inserted.
    */
-  async searchAddPlaylist(name: string, filter: string | [string, string][], start?: number, end?: number, sort?: string): Promise<void> {
+  async searchAddPlaylist(name: string, filter: string | [string, string][], start?: number, end?: number, sort?: string, position?: number): Promise<void> {
     let cmd = `searchaddpl ${name}`;
     cmd = addFilter(cmd, filter);
     cmd = addSort(cmd, sort);
     cmd = addWindow(cmd, start, end);
+    cmd = addPosition(cmd, position);
     await protocol.sendCommand(cmd);
   },
 
@@ -343,6 +346,13 @@ function addSort(cmd: string, sort?: string): string {
 function addWindow(cmd: string, start?: number, end?: number): string {
   if (start !== undefined) {
     cmd += ` window ${start}:${(end !== undefined) ? end : ''}`;
+  }
+  return cmd;
+}
+
+function addPosition(cmd: string, position?: number): string {
+  if (position !== undefined) {
+    cmd += ` position ${position}`;
   }
   return cmd;
 }

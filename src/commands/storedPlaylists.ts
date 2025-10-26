@@ -58,14 +58,21 @@ export const createStoredPlaylistsCommands = (protocol: MPDProtocol) => ({
   /**
    * Loads the playlist into the current queue. Playlist plugins are supported.
    * A range may be specified to load only a part of the playlist.
+   * The `position` parameter specifies where the songs will be inserted into the queue.
    */
-  async load(name: string, start?: number, end?: number): Promise<void> {
+  async load(name: string, start?: number, end?: number, position?: number): Promise<void> {
     let cmd = `load "${name}"`;
     if (start !== undefined) {
       cmd += ` ${start}:`;
       if (end !== undefined) {
         cmd += end;
       }
+    }
+    if (position !== undefined) {
+      if (start === undefined) {
+        cmd += ' 0:';
+      }
+      cmd += ` ${position}`;
     }
     await protocol.sendCommand(cmd);
   },
@@ -80,9 +87,13 @@ export const createStoredPlaylistsCommands = (protocol: MPDProtocol) => ({
 
   /**
    * Adds `uri` to the playlist `name`.m3u. `name`.m3u will be created if it does not exist.
+   * The `position` parameter specifies where the songs will be inserted into the playlist.
    */
-  async playlistAdd(name: string, uri: string): Promise<void> {
-    const cmd = `playlistadd "${name}" "${uri}"`;
+  async playlistAdd(name: string, uri: string, position?: number): Promise<void> {
+    let cmd = `playlistadd "${name}" "${uri}"`;
+    if (position !== undefined) {
+      cmd += ` ${position}`;
+    }
     await protocol.sendCommand(cmd);
   },
 
